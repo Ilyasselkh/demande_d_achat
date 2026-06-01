@@ -26,6 +26,11 @@
 }
 
 .o_form_view.ar_purchase_request_form {
+    --ar-primary: #0072bc;
+    --ar-primary-dark: #004f85;
+    --ar-ink: #1d2939;
+    --ar-muted: #667085;
+    --ar-border: #d9e2ec;
     --ar-da-ink: #172033;
     --ar-da-muted: #697386;
     --ar-da-line: #d8e0ea;
@@ -42,8 +47,8 @@
 
 .o_form_view.ar_purchase_request_form .o_form_statusbar {
     padding: 10px 16px;
-    border-bottom: 1px solid #dce5ef;
-    background: #ffffff;
+    border-bottom: 1px solid var(--ar-border);
+    background: linear-gradient(90deg, #ffffff 0%, #f4f8fb 100%);
     box-shadow: 0 8px 18px rgba(23, 32, 51, 0.04);
 }
 
@@ -531,16 +536,26 @@
     font-weight: 700;
 }
 
-.o_form_view.ar_purchase_request_form .o_statusbar_status .o_arrow_button_current {
-    background-color: var(--ar-da-teal);
-    border-color: var(--ar-da-teal);
-    color: #ffffff;
-    font-weight: 800;
+.o_form_view.ar_purchase_request_form .o_statusbar_status {
+    gap: 6px;
 }
 
-.o_form_view.ar_purchase_request_form .o_statusbar_status .o_arrow_button:not(.o_arrow_button_current) {
-    color: #4b5870;
-    background: #f4f7fb;
+.o_form_view.ar_purchase_request_form .o_arrow_button {
+    border-radius: 999px !important;
+    border: 1px solid var(--ar-border) !important;
+    background: #fff !important;
+    color: var(--ar-muted) !important;
+    margin-inline: 2px;
+    padding-inline: 13px !important;
+    font-weight: 600;
+}
+
+.o_form_view.ar_purchase_request_form .o_arrow_button_current,
+.o_form_view.ar_purchase_request_form .o_arrow_button.o_arrow_button_current {
+    background: linear-gradient(135deg, var(--ar-primary), var(--ar-primary-dark)) !important;
+    border-color: transparent !important;
+    color: #fff !important;
+    box-shadow: 0 8px 18px rgba(0, 114, 188, 0.25);
 }
 
 .o_form_view.ar_purchase_request_form .btn-success,
