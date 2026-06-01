@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_purchase_request_form" model="ir.ui.view">
+    <field name="name">purchase.request.form</field>
+    <field name="model">purchase.request</field>
+    <field name="arch" type="xml">
+      <form string="Demande d'achat" create="1" edit="1" duplicate="false" class="o_purchase_request_full_width ar_purchase_request_form">
+        <header>
+          <field name="state" widget="statusbar" statusbar_visible="draft,first_manager,devis,buyer,accompagnement,second_manager,finance_validation,general_director,approved,reception,archives,rejected"/>
+        </header>
+
+        <sheet class="ar_purchase_request_sheet" style="max-width: none; width: calc(100% - 32px);">
+          <field name="buyer_display_mode" invisible="1"/>
+          <field name="form_option" invisible="1"/>
+          <field name="manager_user_id" invisible="1"/>
+          <field name="is_n1_manager" invisible="1"/>
+          <field name="pub_has_autre" invisible="1"/>
+          <field name="b1_has_tech" invisible="1"/>
+          <field name="b1_has_service" invisible="1"/>
+          <field name="b1_has_price" invisible="1"/>
+          <field name="b1_has_delay" invisible="1"/>
+          <field name="b1_has_autre" invisible="1"/>
+          <field name="c_has_autre" invisible="1"/>
+          <field name="is_initiator" invisible="1"/>
+          <field name="is_initiator_or_manager" invisible="1"/>
+          <field name="is_selected_manager_cc" invisible="1"/>
+          <field name="is_initiator_or_buyer" invisible="1"/>
+          <field name="can_edit_need_section" invisible="1"/>
+          <field name="can_submit_request" invisible="1"/>
+          <field name="can_first_approve" invisible="1"/>
+          <field name="can_submit_devis" invisible="1"/>
+          <field name="can_buyer_submit" invisible="1"/>
+          <field name="can_second_approve" invisible="1"/>
+          <field name="can_finance_approve" invisible="1"/>
+          <field name="can_director_validation" invisible="1"/>
+          <field name="can_director_approve" invisible="1"/>
+          <field name="can_pass_to_reception" invisible="1"/>
+          <field name="can_archive_request" invisible="1"/>
+          <field name="can_archive_rejected_request" invisible="1"/>
+          <field name="can_reset_to_draft" invisible="1"/>
+          <field name="can_print_request" invisible="1"/>
+          <field name="currency_id" invisible="1"/>
+
+          <div class="ar_purchase_request_title">
+            <div>
+              <span class="ar_purchase_request_label">Demande d'achat</span>
+              <h1>
+                <field name="name" readonly="1" nolabel="1"/>
+              </h1>
+              <div class="ar_da_static_3d" aria-hidden="true">
+                <span class="ar_da_3d_card ar_da_3d_card_main"/>
+                <span class="ar_da_3d_card ar_da_3d_card_back"/>
+                <span class="ar_da_3d_card ar_da_3d_card_front"/>
+                <span class="ar_da_3d_coin ar_da_3d_coin_one"/>
+                <span class="ar_da_3d_coin ar_da_3d_coin_two"/>
+                <span class="ar_da_3d_coin ar_da_3d_coin_three"/>
+              </div>
+            </div>
+            <div class="ar_purchase_request_amount">
+              <span>Montant retenu</span>
+              <field name="devis_retenu" nolabel="1" readonly="1"/>
+            </div>
+          </div>
+
+          <group col="1">
+
+            <!-- Section demandeur -->
+            <group string="Section demandeur" colspan="4" class="ar_purchase_request_panel ar_purchase_request_identity">
+
+              <separator string="Informations Générales" colspan="4"/>
+              <group col="4">
+                <field name="initiator_id" readonly="1"/>
+                <field name="department" readonly="1"/>
+                <field name="job_title" readonly="1"/>
+                <field name="date_created" readonly="1"/>
+                <field name="description" placeholder="Veuillez entrer une description" readonly="not can_edit_need_section"/>
+              </group>
+
+              <separator colspan="4"/>
+
+              <div class="ar_purchase_request_main_row" colspan="4">
+
+                <!-- GAUCHE : Table de besoin -->
+                <group string="Description de besoin" class="ar_purchase_request_panel ar_purchase_request_lines">
+                  <field name="line_ids" readonly="not can_edit_need_section">
+                    <list editable="bottom">
+                      <field name="description" required="1"/>
+                      <field name="quantity" required="1"/>
+                      <field name="request_id" column_invisible="True"/>
+                    </list>
+                  </field>
+                </group>
+
+                <!-- DROITE : Section devis + Montant -->
+                <group string="Section devis" class="ar_purchase_request_panel ar_purchase_request_devis" invisible="state not in ['devis','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives','rejected']">
+
+                  <separator string="Devis" colspan="1"/>
+                  <field name="devis_attachment_ids" widget="many2many_binary" string="Devis" readonly="state != 'devis' or not is_initiator"/>
+
+                  <separator string="Montant" colspan="1"/>
+
+                  <field name="is_buyer" invisible="1"/>
+                  <field name="is_initiator_or_buyer" invisible="1"/>
+
+                  <group col="1">
+                    <field name="devis_requirement_level" readonly="state != 'devis' or not is_initiator"/>
+
+                    <div invisible="devis_requirement_level != 'three'">
+                      <label for="exceptional_validation" string="Dérogation des 3 devis" class="o_form_label"/>
+                      <field name="exceptional_validation" nolabel="1" class="oe_inline" readonly="not is_initiator_or_buyer or state != 'devis'"/>
+                      <div class="text-muted" style="margin-top:10px;">
+                        Si le montant est supérieur ou égal à 20 001 MAD et que vous avez <b>moins de 3 devis</b>,
+                        cochez ce bouton pour pouvoir soumettre.
+                      </div>
+                    </div>
+                  </group>
+
+                </group>
+
+              </div>
+
+              <group colspan="4" class="ar_purchase_request_panel ar_purchase_request_devis" invisible="state not in ['devis','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives','rejected']">
+
+                <separator string="Type de procédure d'achat" colspan="2"/>
+
+                <group col="2">
+                  <field name="form_option" readonly="state != 'devis' or not is_initiator"/>
+                </group>
+
+                <group colspan="4" invisible="not form_option">
+
+                  <!-- Partie A -->
+                  <group string="Partie A : MISE EN CONCURRENCE" colspan="1" invisible="form_option not in ['ab1','ac']">
+                    <field name="pub_selection" widget="many2many_checkboxes" readonly="state != 'devis' or not is_initiator"/>
+                    <field name="pub_autre_text" invisible="not pub_has_autre" readonly="state != 'devis' or not is_initiator"/>
+                  </group>
+
+                  <!-- Partie B1 -->
+                  <group string="PARTIE B1 : JUSTIFICATION DU CHOIX DU FOURNISSEUR" colspan="1" invisible="form_option != 'ab1'">
+                    <field name="b1_selection" widget="many2many_checkboxes" readonly="state != 'devis' or not is_initiator"/>
+                    <field name="b1_precision_tech" invisible="not b1_has_tech" readonly="state != 'devis' or not is_initiator"/>
+                    <field name="b1_precision_service" invisible="not b1_has_service" readonly="state != 'devis' or not is_initiator"/>
+                    <field name="b1_precision_price" invisible="not b1_has_price" readonly="state != 'devis' or not is_initiator"/>
+                    <field name="b1_precision_delay" invisible="not b1_has_delay" readonly="state != 'devis' or not is_initiator"/>
+                    <field name="b1_autre" invisible="not b1_has_autre" readonly="state != 'devis' or not is_initiator"/>
+                    <field name="b1_attachments" widget="many2many_binary" readonly="state != 'devis' or not is_initiator"/>
+                  </group>
+
+                  <!-- Partie B2 -->
+                  <group string="PARTIE B2 : FOURNISSEUR UNIQUE" colspan="1" invisible="form_option != 'b2c'">
+                    <field name="b2_selection" readonly="state != 'devis' or not is_initiator"/>
+                    <field name="b2_autre" invisible="b2_selection != 'autre'" readonly="state != 'devis' or not is_initiator"/>
+                    <field name="b2_attachments" widget="many2many_binary" readonly="state != 'devis' or not is_initiator"/>
+                  </group>
+
+                  <!-- Partie C -->
+                  <group string="PARTIE C : APPRECIATION DU PRIX" colspan="1" invisible="form_option not in ['ac','b2c']">
+                    <field name="c_selection" widget="many2many_checkboxes" readonly="state != 'devis' or not is_initiator"/>
+                    <field name="c_autre" invisible="not c_has_autre" readonly="state != 'devis' or not is_initiator"/>
+                  </group>
+
+                </group>
+              </group>
+
+            </group>
+            <!-- FIN Section demandeur -->
+
+            <!-- Section Acheteur -->
+            <group string="Section Acheteur" colspan="4" class="ar_purchase_request_panel ar_purchase_request_devis" invisible="state not in ['buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives']">
+              <field name="is_buyer" invisible="1"/>
+
+              <group string="Fournisseurs" col="4">
+                <field name="buyer_fournisseur_a_name" readonly="not is_buyer or state != 'buyer'"/>
+                <field name="buyer_fournisseur_b_name" invisible="buyer_display_mode == 'one'" readonly="not is_buyer or state != 'buyer'"/>
+                <field name="buyer_fournisseur_c_name" invisible="buyer_display_mode != 'three'" readonly="not is_buyer or state != 'buyer'"/>
+              </group>
+
+              <group col="2" string="Devis" invisible="not devis_requirement_level">
+                <field name="devis_A" widget="many2many_binary" readonly="not is_buyer or state != 'buyer'"/>
+                <field name="devis_B" widget="many2many_binary" invisible="buyer_display_mode == 'one'" readonly="not is_buyer or state != 'buyer'"/>
+                <field name="devis_C" widget="many2many_binary" invisible="buyer_display_mode != 'three'" readonly="not is_buyer or state != 'buyer'"/>
+              </group>
+            </group>
+
+            <!-- Section formulaire d'accompagnement -->
+            <group string="Section du formulaire d'accompagnement" colspan="4" class="ar_purchase_request_panel ar_purchase_request_accompagnement" invisible="state not in ['accompagnement','second_manager','finance_validation','general_director','approved','reception','archives']">
+
+              <group col="4">
+                <field name="id_sap" placeholder="Entrer l'ID SAP" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
+                <field name="fournisseur_retenu" placeholder="Choisir le fournisseur" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
+                <field name="devis_retenu" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
+                <field name="type_depense" placeholder="Choisir le type de dépense" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
+              </group>
+
+              <group col="4" invisible="type_depense != 'investissement'">
+                <field name="numero_ordre" placeholder="Entrer le numero d'ordre" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
+                <field name="groupe" placeholder="Entrer le groupe de marchandises" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
+              </group>
+
+              <group col="4" invisible="type_depense != 'centre_cout'">
+                <field name="centre_de_cout_id" placeholder="Choisir un centre de cout" context="{'tree_view_ref': 'demande_d_achat.view_manager_centre_cout_tree_simple'}" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
+                <field name="available_manager_ids" invisible="1"/>
+                <field name="manager_centre_cout_id" placeholder="Choisir un manager CC" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
+                <field name="groupe1" placeholder="Entrer le groupe de marchandises" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
+              </group>
+            </group>
+
+            <!-- Actions -->
+            <group string="Action(s)" colspan="4" class="ar_purchase_request_panel ar_purchase_request_actions" invisible="state == 'archives'">
+              <group>
+                <field name="sap_validation" string="J'ai validé sur SAP (Ne cocher que si validé sur SAP)" invisible="not can_finance_approve"/>
+              </group>
+
+              <group invisible="state != 'reception' or not is_initiator">
+                <field name="sap_reception" string="J'ai validé sur SAP (Ne cocher que si validé sur SAP)"/>
+              </group>
+
+              <group invisible="not can_submit_request">
+                <button name="action_submit" type="object" string="Soumettre" class="oe_highlight"/>
+              </group>
+
+              <group>
+                <button name="action_first_approve" type="object" string="Approuver" class="oe_highlight" invisible="not can_first_approve"/>
+                <button name="action_reject" type="object" string="Rejeter" class="oe_highlight" invisible="not can_first_approve"/>
+              </group>
+
+              <group invisible="not can_submit_devis">
+                <button name="action_submit_devis" string="Soumettre" type="object" class="btn btn-primary"/>
+              </group>
+
+              <group invisible="not can_buyer_submit">
+                <button name="action_buyer_submit" type="object" string="Soumettre" class="oe_highlight"/>
+              </group>
+
+              <group invisible="not can_second_approve">
+                <button name="action_second_approve" type="object" string="Soumettre" class="oe_highlight"/>
+              </group>
+
+              <group invisible="not can_finance_approve">
+                <button name="action_finance_approve" type="object" string="Approuver" class="oe_highlight"/>
+                <button name="action_reject" type="object" string="Rejeter" class="oe_highlight"/>
+              </group>
+
+              <group invisible="not can_director_validation">
+                <field name="sap_validation"/>
+                <button name="action_director_validation" type="object" string="Approuver" class="oe_highlight"/>
+                <button name="action_reject" type="object" string="Rejeter" class="oe_highlight"/>
+              </group>
+
+              <group invisible="not can_director_approve">
+                <field name="sap_validation" string="J'ai validé sur SAP (Ne cocher que si validé sur SAP)"/>
+                <button name="action_director_approve" type="object" string="Approuver" class="oe_highlight"/>
+                <button name="action_reject" type="object" string="Rejeter" class="oe_highlight"/>
+              </group>
+
+              <group invisible="not can_pass_to_reception">
+                <button name="action_pass_to_reception" string="Passer à la réception" type="object" class="btn-primary"/>
+              </group>
+
+              <group invisible="not can_archive_request">
+                <button name="action_send_to_archive" type="object" string="Envoyer aux archives" class="oe_highlight"/>
+              </group>
+
+              <group invisible="not can_archive_rejected_request">
+                <button name="action_send_to_archive_rejected" type="object" string="Envoyer aux archives" class="oe_highlight"/>
+              </group>
+
+              <group invisible="not can_reset_to_draft">
+                <button name="action_reset_to_draft" type="object" string="Modifier" class="oe_highlight"/>
+              </group>
+
+              <group invisible="not can_print_request">
+                <button name="action_print_request" type="object" string="Imprimer" class="btn-primary"/>
+              </group>
+            </group>
+
+          </group>
+	  	
+          
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_purchase_request_kanban" model="ir.ui.view">
+    <field name="name">purchase.request.kanban</field>
+    <field name="model">purchase.request</field>
+    <field name="arch" type="xml">
+      <kanban class="ar_demande_achat_kanban" default_group_by="state" quick_create="false">
+        <field name="name"/>
+        <field name="state"/>
+        <field name="initiator_id"/>
+        <field name="department"/>
+        <field name="date_created"/>
+        <field name="devis_retenu"/>
+        <field name="currency_id"/>
+        <templates>
+          <t t-name="card">
+            <div t-attf-class="oe_kanban_global_click oe_kanban_card ar_request_card ar_state_#{record.state.raw_value}">
+              <div class="ar_card_topline"/>
+              <div class="ar_card_header">
+                <div>
+                  <span class="ar_card_ref"><field name="name"/></span>
+                  <strong class="ar_card_title">Demande d'achat</strong>
+                </div>
+                <span class="ar_card_state"><field name="state"/></span>
+              </div>
+              <div class="ar_card_person">
+                <span class="ar_card_avatar"><i class="fa fa-user"/></span>
+                <div>
+                  <span class="ar_card_label">Demandeur</span>
+                  <strong><field name="initiator_id"/></strong>
+                </div>
+              </div>
+              <div class="ar_card_meta">
+                <span><i class="fa fa-sitemap"/> <field name="department"/></span>
+                <span><i class="fa fa-money"/> <field name="devis_retenu"/></span>
+              </div>
+              <div class="ar_card_dates">
+                <span><i class="fa fa-calendar-o"/> <field name="date_created"/></span>
+              </div>
+            </div>
+          </t>
+        </templates>
+      </kanban>
+    </field>
+  </record>
+
+  <!-- List View -->
+  <record id="view_purchase_request_tree" model="ir.ui.view">
+    <field name="name">purchase.request.list</field>
+    <field name="model">purchase.request</field>
+    <field name="arch" type="xml">
+      <list string="Demandes Archivées" decoration-success="statut_final == 'approved'" decoration-danger="statut_final == 'rejected'">
+        <field name="name"/>
+        <field name="id_sap"/>
+        <field name="initiator_id"/>
+        <field name="state" widget="badge"/>
+        <field name="statut_final"/>
+        <field name="description"/>
+        <field name="date_created"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_purchase_request_archives" model="ir.actions.act_window">
+    <field name="name">Archives</field>
+    <field name="res_model">purchase.request</field>
+    <field name="view_mode">list,kanban,form</field>
+    <field name="domain">[('state', '=', 'archives')]</field>
+    <field name="context">{'create': False}</field>
+  </record>
+
+  <record id="action_purchase_request_initiateur" model="ir.actions.act_window">
+    <field name="name">Demandes</field>
+    <field name="res_model">purchase.request</field>
+    <field name="view_mode">list,kanban,form</field>
+    <field name="domain">[('state', '!=', 'archives')]</field>
+    <field name="context">{'create': True, 'default_initiator_id': uid}</field>
+  </record>
+
+  <!-- Menus -->
+  <menuitem id="menu_purchase_request_root" name="AR Demande d'achat"/>
+  <menuitem id="menu_purchase_request_initiateur" name="Les Demandes" parent="demande_d_achat.menu_purchase_request_root" action="demande_d_achat.action_purchase_request_initiateur"/>
+  <menuitem id="menu_purchase_request_archives" name="Archives" parent="menu_purchase_request_root" action="action_purchase_request_archives" sequence="100"/>
+</odoo>

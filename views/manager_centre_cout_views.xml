@@ -1,0 +1,68 @@
+<odoo>
+    <!-- Action -->
+    <record id="action_manager_centre_cout" model="ir.actions.act_window">
+        <field name="name">Managers des centres de coût</field>
+        <field name="res_model">manager.centre.cout</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p>Ajoutez les managers pour chaque centre de coût ici.</p>
+        </field>
+    </record>
+
+    <!-- Menuitem -->
+    <menuitem id="menu_manager_centre_cout_root"
+              name="Managers des centres de coût"
+              parent="menu_purchase_request_root"  
+              action="action_manager_centre_cout"
+              groups="demande_d_achat.admin"
+              sequence="10"/>
+
+    <!-- Tree view (matrice) -->
+    <record id="view_manager_centre_cout_tree" model="ir.ui.view">
+        <field name="name">manager.centre.cout.tree</field>
+        <field name="model">manager.centre.cout</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="description"/>
+                <field name="manager_ids" widget="many2many_tags"/>
+            </list>
+        </field>
+    </record>
+
+    
+
+    <record id="view_manager_centre_cout_tree_simple" model="ir.ui.view">
+        <field name="name">manager.centre.cout.tree.simple</field>
+        <field name="model">manager.centre.cout</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="description"/>
+            </list>
+        </field>
+    </record>
+
+
+    <!-- Form view -->
+    <record id="view_manager_centre_cout_form" model="ir.ui.view">
+        <field name="name">manager.centre.cout.form</field>
+        <field name="model">manager.centre.cout</field>
+        <field name="arch" type="xml">
+            <form string="Manager du Centre de Coût">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="description"/>
+                        <field name="manager_ids" widget="many2many_tags"/>
+                    </group>
+                 <div class="oe_chatter">
+                <field name="message_follower_ids" widget="mail_followers"/>
+                <field name="activity_ids" widget="mail_activity"/>
+                <field name="message_ids" widget="mail_thread"/>
+            </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

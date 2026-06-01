@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">        
+    <!-- Notification changement d'étape - Purchase Request -->
+        <record id="purchase_request_step_change" model="mail.template">
+            <field name="name">Demande d'achat : notification changement d'étape</field>           
+            
+             <!-- modèle -->
+            <field name="model_id" ref="demande_d_achat.model_purchase_request"/>
+
+            <!-- sujet -->
+            <field name="subject"> [DA] {{ object.name }} - Passage à l'étape : {{ dict(object._fields['state'].selection).get(object.state) }} </field>            <!-- from -->
+            <field name="email_from">Workflow Achats &lt;DA-ARMaroc@araymond.com&gt;</field>            
+            
+            <!-- email_to sera rempli par ton code Python -->
+            <field name="email_to"></field>           
+            
+             <!-- body -->
+            <field name="body_html" type="html">
+                <div> Bonjour, <br/>
+                <br/>
+ La demande d'achat <strong>
+                <t t-out="object.name"/>
+            </strong> vient de passer à l'étape : <strong>
+            <t t-out="dict(object._fields['state'].selection).get(object.state)"/>
+        </strong>.        <br/>
+        <br/>
+ Action réalisée par : <strong>
+        <t t-out="user.name"/>
+    </strong>
+    <br/>
+    <br/>
+    <div style="margin: 16px 0px 16px 0px;">
+        <a t-attf-href="https://ma-odoo.ar.ray.group/web#id={{ object.id }}&amp;cids=1&amp;menu_id=393&amp;action=544&amp;model=purchase.request&amp;view_type=form" style="background-color: #1481f4;
+         padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;"> Accéder à la demande </a>
+    </div> Merci, </div>
+</field>
+</record>
+</data>
+</odoo>

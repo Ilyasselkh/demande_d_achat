@@ -1,0 +1,46 @@
+<odoo>
+  <!-- Partie A options -->
+  <record id="partie_a_pub1" model="purchase.request.partie.a.option">
+    <field name="name">Demande de devis ciblée par mail vers des fournisseurs connus</field>
+  </record>
+  <record id="partie_a_pub2" model="purchase.request.partie.a.option">
+    <field name="name">Autre</field>
+  </record>
+
+  <!-- Partie B1 options -->
+  <record id="partie_b1_option1" model="purchase.request.partie.b1.option">
+    <field name="name">Caractéristiques techniques les mieux adaptées à mon besoin (précision, fiabilité, pureté/composition du produits, etc...)</field>
+  </record>
+  <record id="partie_b1_option2" model="purchase.request.partie.b1.option">
+    <field name="name">Qualité de services du fournisseur retenu (service après-vente, disponibilité des pièces, etc...)</field>
+  </record>
+  <record id="partie_b1_option3" model="purchase.request.partie.b1.option">
+    <field name="name">Prix total ou coût global d’acquisition (prix + coût en formation, coût d’utilisation, SAV, etc...)</field>
+  </record>
+  <record id="partie_b1_option4" model="purchase.request.partie.b1.option">
+    <field name="name">Délais de livraison</field>
+  </record>
+  <record id="partie_b1_option5" model="purchase.request.partie.b1.option">
+    <field name="name">Autre</field>
+  </record>
+
+  <!-- Partie C options -->
+  <record id="partie_c_option1" model="purchase.request.partie.c.option">
+    <field name="name">L’offre du fournisseur est négociée.</field>
+  </record>
+  <record id="partie_c_option2" model="purchase.request.partie.c.option">
+    <field name="name">Le prix du devis inclut une remise sur le prix public du fournisseur, indiquant une économie certaine</field>
+  </record>
+  <record id="partie_c_option3" model="purchase.request.partie.c.option">
+    <field name="name">Le prix du devis est comparable au prix obtenu par le passé pour un article similaire.</field>
+  </record>
+  <record id="partie_c_option4" model="purchase.request.partie.c.option">
+    <field name="name">Le fournisseur garantit que les prix proposés sont les mêmes que ceux proposés à leur meilleur client.</field>
+  </record>
+  <record id="partie_c_option5" model="purchase.request.partie.c.option">
+    <field name="name">Le prix obtenu est celui indiqué dans un catalogue ou sur une liste de prix standard.</field>
+  </record>
+  <record id="partie_c_option6" model="purchase.request.partie.c.option">
+    <field name="name">Autre</field>
+  </record>
+</odoo>

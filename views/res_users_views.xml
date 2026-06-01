@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_users_form_demande_achat_access" model="ir.ui.view">
+    <field name="name">res.users.form.demande.achat.access</field>
+    <field name="model">res.users</field>
+    <field name="inherit_id" ref="base.view_users_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//page[@name='access_rights']" position="inside">
+        <group string="Demande d'Achat">
+          <group col="2">
+            <field name="da_group_initiateur"/>
+            <field name="da_group_manager"/>
+            <field name="da_group_acheteur"/>
+            <field name="da_group_managercc"/>
+            <field name="da_group_finance"/>
+            <field name="da_group_directeur"/>
+            <field name="da_group_admin"/>
+          </group>
+        </group>
+      </xpath>
+    </field>
+  </record>
+</odoo>

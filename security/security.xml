@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <!-- Catégorie principale : Demande d'achat -->
+  <record id="module_category_purchase_workflow" model="ir.module.category">
+    <field name="name">Demande d'Achat</field>
+    <field name="description">Groupes liés au flux de demande d'achat</field>
+    <field name="sequence">20</field>
+  </record>
+
+  <!-- Groupes -->
+  <record id="groupe_initiateur" model="res.groups">
+    <field name="name">Initiateur</field>
+    <field name="privilege_id" eval="False"/>
+    <field name="sequence">10</field>
+  </record>
+
+  <record id="groupe_manager" model="res.groups">
+    <field name="name">Manager N+1</field>
+    <field name="privilege_id" eval="False"/>
+    <field name="sequence">20</field>
+  </record>
+
+  <record id="groupe_acheteur" model="res.groups">
+    <field name="name">Achat</field>
+    <field name="privilege_id" eval="False"/>
+    <field name="sequence">30</field>
+  </record>
+
+  <record id="groupe_managercc" model="res.groups">
+    <field name="name">Manager CC</field>
+    <field name="privilege_id" eval="False"/>
+    <field name="sequence">40</field>
+  </record>
+
+  <record id="groupe_finance" model="res.groups">
+    <field name="name">Finance</field>
+    <field name="privilege_id" eval="False"/>
+    <field name="sequence">50</field>
+  </record>
+
+  <record id="groupe_directeur" model="res.groups">
+    <field name="name">Directeur</field>
+    <field name="privilege_id" eval="False"/>
+    <field name="sequence">60</field>
+  </record>
+
+  <record id="admin" model="res.groups">
+    <field name="name">Admin</field>
+    <field name="privilege_id" eval="False"/>
+    <field name="sequence">70</field>
+  </record>
+
+  <!--Regles-->
+  
+  <!-- Règle pour Initiateur : uniquement ses propres demandes -->
+  <record id="rule_purchase_request_initiateur" model="ir.rule">
+      <field name="name">DA - Initiateur</field>
+      <field name="model_id" ref="model_purchase_request"/>
+      <field name="domain_force">[('initiator_id', '=', user.id)]</field>
+      <field name="groups" eval="[(4, ref('demande_d_achat.groupe_initiateur'))]"/>
+  </record>
+
+  <!-- Règle pour Manager N+1 : ses propres demandes + celles des initiateurs dont il est manager RH -->
+  <record id="rule_purchase_request_manager_n1" model="ir.rule">
+      <field name="name">DA - Manager N+1</field>
+      <field name="model_id" ref="model_purchase_request"/>
+      <field name="domain_force">
+          ['|', ('initiator_id', '=', user.id),
+                ('initiator_id.employee_id.parent_id.user_id', '=', user.id)]
+      </field>
+      <field name="groups" eval="[(4, ref('demande_d_achat.groupe_manager'))]"/>
+  </record>
+
+    <!-- Règle pour Manager CC : uniquement les demandes où il est désigné -->
+  <record id="rule_purchase_request_manager_cc" model="ir.rule">
+      <field name="name">DA - Manager CC</field>
+      <field name="model_id" ref="model_purchase_request"/>
+      <field name="domain_force">['|', ('initiator_id', '=', user.id), ('manager_centre_cout_id', '=', user.id)]</field>
+      <field name="groups" eval="[(4, ref('demande_d_achat.groupe_managercc'))]"/>
+  </record>
+
+  <record id="rule_purchase_request_admin" model="ir.rule">
+      <field name="name">DA - Admin</field>
+      <field name="model_id" ref="model_purchase_request"/>
+      <field name="domain_force">[(1, '=', 1)]</field>
+      <field name="groups" eval="[(4, ref('demande_d_achat.admin'))]"/>
+  </record>
+
+    <!-- Règle pour Acheteur : accès à toutes les demandes -->
+  <record id="rule_purchase_request_acheteur" model="ir.rule">
+      <field name="name">DA - Acheteur</field>
+      <field name="model_id" ref="model_purchase_request"/>
+      <field name="domain_force">[(1, '=', 1)]</field>
+      <field name="groups" eval="[(4, ref('demande_d_achat.groupe_acheteur'))]"/>
+  </record>
+
+    <!-- Règle pour Finance : accès à toutes les demandes -->
+  <record id="rule_purchase_request_finance" model="ir.rule">
+      <field name="name">DA - Finance</field>
+      <field name="model_id" ref="model_purchase_request"/>
+      <field name="domain_force">[(1, '=', 1)]</field>
+      <field name="groups" eval="[(4, ref('demande_d_achat.groupe_finance'))]"/>
+  </record>
+
+    <!-- Règle pour Directeur : accès à toutes les demandes -->
+  <record id="rule_purchase_request_directeur" model="ir.rule">
+      <field name="name">DA - Directeur</field>
+      <field name="model_id" ref="model_purchase_request"/>
+      <field name="domain_force">[(1, '=', 1)]</field>
+      <field name="groups" eval="[(4, ref('demande_d_achat.groupe_directeur'))]"/>
+  </record>
+</odoo>

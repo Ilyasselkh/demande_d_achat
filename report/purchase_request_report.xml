@@ -1,0 +1,161 @@
+<odoo>
+  <record id="purchase_request_report" model="ir.actions.report">
+      <field name="name">Purchase Request</field>
+      <field name="model">purchase.request</field>
+      <field name="report_type">qweb-pdf</field>
+      <field name="report_name">demande_d_achat.report_purchase_request</field>
+      <field name="report_file">demande_d_achat.report_purchase_request</field>
+      <field name="print_report_name">'Purchase Request - %s' % (object.name)</field>
+      <field name="binding_model_id" eval="False"/>
+  </record>
+
+  <template id="report_purchase_request">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <div class="page">
+
+          <!-- TITRE PDF -->
+          <h1 style="text-align:center;">
+            Demande d'Achat
+            <t t-if="doc.id_sap">- <t t-esc="doc.id_sap"/></t>
+          </h1>
+          <hr/>
+
+          <!-- SECTION DEMANDEUR -->
+          <h2>Section Demandeur</h2>
+          <table style="width:100%; border-collapse: collapse;">
+            <tr>
+              <td><strong>Initiateur :</strong></td>
+              <td><t t-esc="doc.initiator_id.name"/></td>
+            </tr>
+            <tr>
+              <td><strong>Departement :</strong></td>
+              <td><t t-esc="doc.department"/></td>
+            </tr>
+            <tr>
+              <td><strong>Poste :</strong></td>
+              <td><t t-esc="doc.job_title"/></td>
+            </tr>
+            <tr>
+              <td><strong>Date de creation :</strong></td>
+              <td><t t-esc="doc.date_created"/></td>
+            </tr>
+            <tr>
+              <td><strong>Description :</strong></td>
+              <td><t t-esc="doc.description"/></td>
+            </tr>
+          </table>
+
+          <h3>Expression de besoin</h3>
+          <table style="width:100%; border:1px solid #000; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color:#f0f0f0;">
+                <th style="border:1px solid #000; padding:5px;">Description</th>
+                <th style="border:1px solid #000; padding:5px;">Quantite</th>
+              </tr>
+            </thead>
+            <tbody>
+              <t t-foreach="doc.line_ids" t-as="line">
+                <tr>
+                  <td style="border:1px solid #000; padding:5px;"><t t-esc="line.description"/></td>
+                  <td style="border:1px solid #000; padding:5px;"><t t-esc="line.quantity"/></td>
+                </tr>
+              </t>
+            </tbody>
+          </table>
+          <hr/>
+
+          <!-- SECTION ACHETEUR -->
+          <h2>Section Acheteur</h2>
+          <table style="width:100%; border-collapse: collapse;">
+            <tr>
+              <td><strong>Fournisseur A :</strong></td>
+              <td><t t-esc="doc.buyer_fournisseur_a_name"/></td>
+            </tr>
+            <tr>
+              <td><strong>Fournisseur B :</strong></td>
+              <td><t t-esc="doc.buyer_fournisseur_b_name"/></td>
+            </tr>
+            <tr>
+              <td><strong>Fournisseur C :</strong></td>
+              <td><t t-esc="doc.buyer_fournisseur_c_name"/></td>
+            </tr>
+          </table>
+          <hr/>
+
+  <!-- Section Formulaire d'Accompagnement -->
+  <t t-if="doc.state in ['accompagnement','second_manager','finance_validation','general_director','approved','reception','archives']">
+    <h3>Section Formulaire d'Accompagnement</h3>
+    <p><strong>ID SAP :</strong> <t t-esc="doc.id_sap"/></p>
+    <p><strong>Montant estimé :</strong> <t t-esc="doc.devis_retenu"/></p>
+    <p><strong>Type de dépense :</strong> <t t-esc="doc.type_depense"/></p>
+    <t t-if="doc.type_depense == 'investissement'">
+      <p><strong>Numéro d'ordre :</strong> <t t-esc="doc.numero_ordre"/></p>
+      <p><strong>Groupe :</strong> <t t-esc="doc.groupe"/></p>
+    </t>
+    <t t-if="doc.type_depense == 'centre_cout'">
+      <p><strong>Centre de coût :</strong> <t t-esc="doc.centre_de_cout_id.name"/></p>
+      <p><strong>Manager CC :</strong> <t t-esc="doc.manager_centre_cout_id.name"/></p>
+      <p><strong>Groupe :</strong> <t t-esc="doc.groupe1"/></p>
+    </t>
+
+    <!-- Partie A -->
+    <t t-if="doc.form_option in ['ab1','ac']">
+      <h4>Partie A : Mise en concurrence</h4>
+      <p>Selection :
+        <t t-foreach="doc.pub_selection" t-as="item">
+          <t t-esc="item"/>
+        </t>
+     </p>
+     <t t-if="doc.pub_has_autre">
+       <p>Précision autre : <t t-esc="doc.pub_autre_text"/></p>
+      </t>
+    </t>
+
+    <!-- Partie B1 -->
+    <t t-if="doc.form_option == 'ab1'">
+     <h4>Partie B1 : Justification du choix du fournisseur</h4>
+     <p>Selection :
+          <t t-foreach="doc.b1_selection" t-as="item">
+          <t t-esc="item"/>
+       </t>
+      </p>
+      <t t-if="doc.b1_has_tech"><p>Technique : <t t-esc="doc.b1_precision_tech"/></p></t>
+      <t t-if="doc.b1_has_service"><p>Service : <t t-esc="doc.b1_precision_service"/></p></t>
+      <t t-if="doc.b1_has_price"><p>Prix : <t t-esc="doc.b1_precision_price"/></p></t>
+      <t t-if="doc.b1_has_delay"><p>Délai : <t t-esc="doc.b1_precision_delay"/></p></t>
+      <t t-if="doc.b1_has_autre"><p>Autre : <t t-esc="doc.b1_autre"/></p></t>
+    </t>
+
+    <!-- Partie B2 -->
+    <t t-if="doc.form_option == 'b2c'">
+     <h4>Partie B2 - Fournisseur unique :</h4>
+     <p>Selection :
+       <t t-foreach="doc.b2_selection" t-as="item">
+         <t t-esc="item"/>
+       </t>
+     </p>
+     <t t-if="doc.b2_selection == 'autre'">
+       <p>Précision autre : <t t-esc="doc.b2_autre"/></p>
+    </t>
+  </t>
+
+  <!-- Partie C -->
+  <t t-if="doc.form_option in ['ac','b2c']">
+    <h4>Partie C - Appréciation du prix :</h4>
+    <p>Selection :
+      <t t-foreach="doc.c_selection" t-as="item">
+        <t t-esc="item"/>
+      </t>
+    </p>
+    <t t-if="doc.c_has_autre"><p>Précision autre : <t t-esc="doc.c_autre"/></p></t>
+    </t>
+  </t>
+
+          <hr/>
+          <p style="text-align:center;"></p>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

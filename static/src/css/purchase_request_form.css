@@ -1,0 +1,919 @@
+.o_form_view.o_purchase_request_full_width .o_form_sheet_bg,
+.o_form_view.ar_purchase_request_form .o_form_sheet_bg {
+    width: 100%;
+    max-width: none;
+}
+
+.o_form_view.o_purchase_request_full_width .o_form_sheet_bg > .o_form_sheet,
+.o_form_view.ar_purchase_request_form .o_form_sheet_bg > .o_form_sheet {
+    width: calc(100% - 32px);
+    max-width: none;
+    margin-left: 16px;
+    margin-right: 16px;
+}
+
+.o_form_view.o_purchase_request_full_width .o_form_statusbar,
+.o_form_view.ar_purchase_request_form .o_form_statusbar {
+    width: calc(100% - 32px);
+    max-width: none;
+    margin-left: 16px;
+    margin-right: 16px;
+}
+
+.o_form_view.o_purchase_request_full_width .o_inner_group,
+.o_form_view.ar_purchase_request_form .o_inner_group {
+    width: 100%;
+}
+
+.o_form_view.ar_purchase_request_form {
+    --ar-da-ink: #172033;
+    --ar-da-muted: #697386;
+    --ar-da-line: #d8e0ea;
+    --ar-da-soft: #f7f9fc;
+    --ar-da-panel: #ffffff;
+    --ar-da-panel-2: #fbfdff;
+    --ar-da-teal: #0f766e;
+    --ar-da-teal-dark: #115e59;
+    --ar-da-blue: #2563eb;
+    --ar-da-amber: #b45309;
+    --ar-da-red: #b42318;
+    background: linear-gradient(180deg, #f3f8fb 0%, #f7f9fc 36%, #ffffff 100%);
+}
+
+.o_form_view.ar_purchase_request_form .o_form_statusbar {
+    padding: 10px 16px;
+    border-bottom: 1px solid #dce5ef;
+    background: #ffffff;
+    box-shadow: 0 8px 18px rgba(23, 32, 51, 0.04);
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_sheet {
+    position: relative;
+    padding: 30px 34px 32px;
+    border: 1px solid rgba(174, 190, 211, 0.72);
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(252, 254, 255, 0.98) 100%);
+    box-shadow: 0 20px 48px rgba(23, 32, 51, 0.1), 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+    overflow: visible;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_sheet.ar_da_ready {
+    animation: arDaSheetIn 420ms ease-out both;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_sheet::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 7px;
+    border-radius: 8px 8px 0 0;
+    background: linear-gradient(90deg, var(--ar-da-teal) 0%, #14b8a6 32%, var(--ar-da-blue) 66%, var(--ar-da-amber) 100%);
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_title {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+    align-items: stretch;
+    gap: 22px;
+    margin: 0 0 24px;
+    padding: 4px 0 24px;
+    border-bottom: 1px solid var(--ar-da-line);
+    perspective: 900px;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_title.ar_da_reveal,
+.o_form_view.ar_purchase_request_form .ar_purchase_request_panel.ar_da_reveal {
+    animation: arDaFadeUp 460ms ease-out both;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_title > div:first-child {
+    --ar-da-tilt-x: 0deg;
+    --ar-da-tilt-y: 0deg;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 128px;
+    padding: 22px 260px 22px 20px;
+    border: 1px solid rgba(147, 197, 253, 0.72);
+    border-radius: 8px;
+    background: radial-gradient(circle at 82% 36%, rgba(45, 212, 191, 0.34), transparent 22%), radial-gradient(circle at 94% 84%, rgba(245, 158, 11, 0.2), transparent 22%), radial-gradient(circle at 8% 16%, rgba(20, 184, 166, 0.18), transparent 30%), linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(239, 253, 250, 0.96) 42%, rgba(238, 242, 255, 0.98) 100%);
+    box-shadow: 0 24px 52px rgba(15, 23, 42, 0.12), 0 0 0 4px rgba(20, 184, 166, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.88);
+    overflow: hidden;
+    transform: perspective(860px) rotateX(var(--ar-da-tilt-x)) rotateY(var(--ar-da-tilt-y)) translateZ(0);
+    transform-style: preserve-3d;
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_title > div:first-child::before,
+.o_form_view.ar_purchase_request_form .ar_purchase_request_amount::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.5) 34%, transparent 68%);
+    opacity: 0.7;
+    transform: translateX(-120%);
+    animation: arDaHeaderSweep 4.8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_title > div:first-child::after {
+    content: "";
+    position: absolute;
+    right: 48px;
+    top: 24px;
+    width: 150px;
+    height: 86px;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 14px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.72) 18%, transparent 18% 28%, rgba(255, 255, 255, 0.45) 28% 58%, transparent 58%), linear-gradient(135deg, rgba(15, 118, 110, 0.96), rgba(37, 99, 235, 0.92));
+    box-shadow: -34px 26px 0 -9px rgba(255, 255, 255, 0.78), -34px 26px 0 -8px rgba(37, 99, 235, 0.32), 22px -18px 0 -14px rgba(245, 158, 11, 0.95), 24px -16px 0 -13px rgba(255, 255, 255, 0.72), 0 24px 36px rgba(15, 23, 42, 0.2);
+    opacity: 0.96;
+    transform: rotateX(58deg) rotateZ(-15deg) translateZ(38px);
+    transform-origin: center;
+    animation: arDaHeroStackFloat 4.8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_title > div:first-child:hover {
+    border-color: rgba(37, 99, 235, 0.28);
+    box-shadow: 0 24px 48px rgba(23, 32, 51, 0.11), 0 0 0 4px rgba(20, 184, 166, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transform: perspective(860px) rotateX(calc(var(--ar-da-tilt-x) + 1deg)) rotateY(var(--ar-da-tilt-y)) translateY(-3px);
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_stage {
+    bottom: 0;
+    left: 34%;
+    opacity: 0.96;
+    overflow: hidden;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translateZ(38px);
+    z-index: 0;
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_stage::before {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0)), radial-gradient(circle at 72% 42%, rgba(45, 212, 191, 0.2), transparent 42%);
+    content: "";
+    inset: 0;
+    position: absolute;
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_stage canvas {
+    display: block;
+    height: 100%;
+    mix-blend-mode: multiply;
+    position: relative;
+    width: 100%;
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_static_3d {
+    bottom: 10px;
+    height: 112px;
+    pointer-events: none;
+    position: absolute;
+    right: 16px;
+    transform: perspective(680px) rotateX(56deg) rotateZ(-16deg);
+    transform-style: preserve-3d;
+    width: 230px;
+    z-index: 1;
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_card,
+.o_form_view.ar_purchase_request_form .ar_da_3d_coin {
+    display: block;
+    position: absolute;
+    transform-style: preserve-3d;
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_card {
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 13px;
+    box-shadow: 0 24px 42px rgba(15, 23, 42, 0.2);
+    height: 74px;
+    overflow: hidden;
+    width: 132px;
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_card::before,
+.o_form_view.ar_purchase_request_form .ar_da_3d_card::after {
+    border-radius: 999px;
+    content: "";
+    position: absolute;
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_card::before {
+    background: rgba(255, 255, 255, 0.68);
+    height: 7px;
+    left: 16px;
+    top: 19px;
+    width: 54px;
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_card::after {
+    background: rgba(255, 255, 255, 0.48);
+    box-shadow: 42px 0 0 rgba(255, 255, 255, 0.28);
+    height: 7px;
+    left: 16px;
+    top: 39px;
+    width: 76px;
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_card_main {
+    animation: arDaCardMainLift 4.2s ease-in-out infinite;
+    background: linear-gradient(135deg, #0f766e 0%, #1d4ed8 100%);
+    left: 48px;
+    top: 20px;
+    transform: translateZ(42px);
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_card_back {
+    animation: arDaCardBackLift 5.2s ease-in-out infinite;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(191, 219, 254, 0.94));
+    left: 20px;
+    top: 36px;
+    transform: translateZ(8px);
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_card_front {
+    animation: arDaCardFrontLift 4.7s ease-in-out infinite;
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.92), rgba(245, 158, 11, 0.84));
+    height: 54px;
+    left: 102px;
+    top: 6px;
+    transform: translateZ(72px) rotateZ(12deg);
+    width: 88px;
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_coin {
+    background: radial-gradient(circle at 34% 28%, #fff7cc 0%, #fde68a 34%, #f59e0b 66%, #b45309 100%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 999px;
+    box-shadow: 0 12px 18px rgba(180, 83, 9, 0.2);
+    height: 22px;
+    width: 22px;
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_coin_one {
+    animation: arDaCoinSpin 3.4s linear infinite;
+    left: 176px;
+    top: 68px;
+    transform: translateZ(82px);
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_coin_two {
+    animation: arDaCoinSpin 3.8s linear infinite reverse;
+    height: 18px;
+    left: 14px;
+    top: 6px;
+    transform: translateZ(46px);
+    width: 18px;
+}
+
+.o_form_view.ar_purchase_request_form .ar_da_3d_coin_three {
+    animation: arDaCoinSpin 4.2s linear infinite;
+    height: 15px;
+    left: 204px;
+    top: 18px;
+    transform: translateZ(60px);
+    width: 15px;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_label {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    min-height: 24px;
+    padding: 3px 11px;
+    border: 1px solid rgba(15, 118, 110, 0.28);
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(234, 248, 246, 0.96), rgba(239, 246, 255, 0.96), rgba(234, 248, 246, 0.96));
+    background-size: 220% 100%;
+    color: var(--ar-da-teal-dark);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    box-shadow: 0 6px 16px rgba(15, 118, 110, 0.1);
+    animation: arDaBadgeGlow 3.8s ease-in-out infinite;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_title h1 {
+    position: relative;
+    z-index: 2;
+    margin: 12px 0 0;
+    color: #07142f;
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: 0;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_amount {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 128px;
+    padding: 16px 20px;
+    border: 1px solid rgba(143, 207, 202, 0.85);
+    border-radius: 8px;
+    background: linear-gradient(135deg, #0f766e 0%, #12837a 36%, #1d4ed8 78%, #0f766e 120%);
+    background-size: 220% 220%;
+    box-shadow: 0 24px 46px rgba(15, 118, 110, 0.28), -18px 18px 32px rgba(37, 99, 235, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.14) inset, inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    overflow: hidden;
+    animation: arDaAmountGradient 6s ease-in-out infinite, arDaAmountFloat 4.5s ease-in-out infinite;
+    transform: perspective(760px) translateZ(0);
+    transform-style: preserve-3d;
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_amount::after {
+    content: "";
+    position: absolute;
+    right: -30px;
+    top: -34px;
+    width: 118px;
+    height: 118px;
+    border: 2px solid rgba(255, 255, 255, 0.27);
+    border-radius: 999px;
+    box-shadow: -58px 84px 0 -52px rgba(255, 255, 255, 0.42), -94px 36px 0 -54px rgba(45, 212, 191, 0.38);
+    animation: arDaRingSpin 9s linear infinite;
+    pointer-events: none;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_amount:hover {
+    border-color: rgba(147, 197, 253, 0.75);
+    box-shadow: 0 25px 48px rgba(15, 118, 110, 0.26), 0 0 0 4px rgba(37, 99, 235, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    transform: perspective(760px) rotateX(2deg) rotateY(-3deg) translateY(-4px) scale(1.01);
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_amount > span::after {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 999px;
+    box-shadow: 0 18px 0 rgba(255, 255, 255, 0.34), 72px 10px 0 rgba(255, 255, 255, 0.22), 118px 28px 0 rgba(255, 255, 255, 0.28);
+    content: "";
+    height: 5px;
+    position: absolute;
+    right: 18px;
+    top: 28px;
+    width: 5px;
+    z-index: -1;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_amount.ar_da_amount_flash {
+    animation: arDaAmountFlash 760ms ease-out both;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_amount > span {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 6px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_amount .o_field_widget,
+.o_form_view.ar_purchase_request_form .ar_purchase_request_amount input {
+    position: relative;
+    z-index: 1;
+    color: #ffffff;
+    font-size: 25px;
+    font-weight: 900;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_amount input {
+    border-color: rgba(255, 255, 255, 0.26);
+    background-color: rgba(255, 255, 255, 0.14);
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_main_row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    align-items: stretch;
+    width: 100%;
+    margin-bottom: 18px;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 150px;
+    margin: 0 0 18px;
+    padding: 20px 22px;
+    border: 1px solid rgba(213, 224, 236, 0.95);
+    border-radius: 8px;
+    background: linear-gradient(180deg, var(--ar-da-panel) 0%, var(--ar-da-panel-2) 100%);
+    box-shadow: 0 10px 22px rgba(23, 32, 51, 0.045);
+    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_main_row .ar_purchase_request_panel {
+    width: 100%;
+    height: 100%;
+    margin-bottom: 0;
+    min-width: 0;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_main_row > .o_group {
+    width: 100%;
+    max-width: none;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_panel:hover {
+    border-color: #b9ccdf;
+    box-shadow: 0 14px 28px rgba(23, 32, 51, 0.07);
+    transform: translateY(-1px);
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_identity {
+    background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_description {
+    border-left: 5px solid #7aa7d9;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_lines,
+.o_form_view.ar_purchase_request_form .ar_purchase_request_devis,
+.o_form_view.ar_purchase_request_form .ar_purchase_request_accompagnement {
+    border-left: 5px solid var(--ar-da-teal);
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_actions {
+    border-left: 5px solid var(--ar-da-amber);
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_panel .o_horizontal_separator,
+.o_form_view.ar_purchase_request_form .ar_purchase_request_panel > .o_group_name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e7edf4;
+    color: var(--ar-da-ink);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_panel .o_horizontal_separator::before,
+.o_form_view.ar_purchase_request_form .ar_purchase_request_panel > .o_group_name::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ar-da-teal);
+    box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_panel .o_inner_group > tbody > tr > td.o_td_label {
+    min-width: 150px;
+    color: var(--ar-da-muted);
+    font-weight: 600;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_panel .o_field_widget {
+    color: var(--ar-da-ink);
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_description textarea {
+    min-height: 104px;
+    border-radius: 8px;
+    border-color: #d5e0ec;
+    background: #ffffff;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_lines .o_field_x2many_list,
+.o_form_view.ar_purchase_request_form .ar_purchase_request_devis .o_field_x2many_list {
+    border: 1px solid #cfdce8;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 8px 18px rgba(23, 32, 51, 0.04);
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_lines .o_list_table,
+.o_form_view.ar_purchase_request_form .ar_purchase_request_devis .o_list_table {
+    margin-bottom: 0;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_lines .o_list_table thead th,
+.o_form_view.ar_purchase_request_form .ar_purchase_request_devis .o_list_table thead th {
+    height: 44px;
+    background: linear-gradient(180deg, #f4f7fb 0%, #eaf1f7 100%);
+    color: var(--ar-da-ink);
+    font-weight: 800;
+}
+
+.o_form_view.ar_purchase_request_form .ar_purchase_request_lines .o_list_table tbody tr:hover,
+.o_form_view.ar_purchase_request_form .ar_purchase_request_devis .o_list_table tbody tr:hover {
+    background: #f3faf9;
+}
+
+.o_form_view.ar_purchase_request_form .o_field_many2many_binary .o_attach {
+    border-radius: 8px;
+    border-color: #cdd9e5;
+    background: #ffffff;
+    font-weight: 700;
+}
+
+.o_form_view.ar_purchase_request_form .o_statusbar_status .o_arrow_button_current {
+    background-color: var(--ar-da-teal);
+    border-color: var(--ar-da-teal);
+    color: #ffffff;
+    font-weight: 800;
+}
+
+.o_form_view.ar_purchase_request_form .o_statusbar_status .o_arrow_button:not(.o_arrow_button_current) {
+    color: #4b5870;
+    background: #f4f7fb;
+}
+
+.o_form_view.ar_purchase_request_form .btn-success,
+.o_form_view.ar_purchase_request_form .oe_highlight,
+.o_form_view.ar_purchase_request_form .btn-primary {
+    background-color: var(--ar-da-teal);
+    border-color: var(--ar-da-teal);
+    border-radius: 8px;
+    font-weight: 700;
+    box-shadow: 0 6px 14px rgba(15, 118, 110, 0.18);
+    transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+
+.o_form_view.ar_purchase_request_form .btn-success:hover,
+.o_form_view.ar_purchase_request_form .oe_highlight:hover,
+.o_form_view.ar_purchase_request_form .btn-primary:hover {
+    background-color: var(--ar-da-teal-dark);
+    border-color: var(--ar-da-teal-dark);
+    box-shadow: 0 9px 20px rgba(15, 118, 110, 0.24);
+    transform: translateY(-1px);
+}
+
+.o_form_view.ar_purchase_request_form .btn-secondary {
+    border-color: #c8d3df;
+    border-radius: 8px;
+    color: #2f3b52;
+    font-weight: 700;
+    background: #ffffff;
+    transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.o_form_view.ar_purchase_request_form .btn-secondary:hover {
+    box-shadow: 0 7px 16px rgba(23, 32, 51, 0.1);
+    transform: translateY(-1px);
+}
+
+.o_form_view.ar_purchase_request_form button[name="action_reject"] {
+    background-color: var(--ar-da-red);
+    border-color: var(--ar-da-red);
+    border-radius: 8px;
+    font-weight: 700;
+    box-shadow: 0 6px 14px rgba(180, 35, 24, 0.14);
+    transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+
+.o_form_view.ar_purchase_request_form button[name="action_reject"]:hover {
+    box-shadow: 0 9px 20px rgba(180, 35, 24, 0.2);
+    transform: translateY(-1px);
+}
+
+.ar_demande_achat_kanban {
+    background: radial-gradient(circle at 10% 0%, rgba(23, 107, 116, 0.12), transparent 28%), #f5f7f8;
+}
+
+.ar_demande_achat_kanban .o_kanban_record {
+    padding: 8px;
+}
+
+.ar_demande_achat_kanban .ar_request_card {
+    position: relative;
+    padding: 0;
+    border: 1px solid #dfe7ec;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 12px 30px rgba(22, 33, 44, 0.08);
+    overflow: hidden;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.ar_demande_achat_kanban .ar_request_card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 42px rgba(22, 33, 44, 0.14);
+}
+
+.ar_demande_achat_kanban .ar_card_topline {
+    height: 5px;
+    background: #176b74;
+}
+
+.ar_demande_achat_kanban .ar_state_first_manager .ar_card_topline,
+.ar_demande_achat_kanban .ar_state_devis .ar_card_topline,
+.ar_demande_achat_kanban .ar_state_buyer .ar_card_topline,
+.ar_demande_achat_kanban .ar_state_accompagnement .ar_card_topline,
+.ar_demande_achat_kanban .ar_state_second_manager .ar_card_topline,
+.ar_demande_achat_kanban .ar_state_finance_validation .ar_card_topline,
+.ar_demande_achat_kanban .ar_state_general_director .ar_card_topline {
+    background: #b77a23;
+}
+
+.ar_demande_achat_kanban .ar_state_approved .ar_card_topline,
+.ar_demande_achat_kanban .ar_state_reception .ar_card_topline,
+.ar_demande_achat_kanban .ar_state_archives .ar_card_topline {
+    background: #3f7d58;
+}
+
+.ar_demande_achat_kanban .ar_state_rejected .ar_card_topline {
+    background: #b23b3b;
+}
+
+.ar_demande_achat_kanban .ar_card_header,
+.ar_demande_achat_kanban .ar_card_person,
+.ar_demande_achat_kanban .ar_card_meta,
+.ar_demande_achat_kanban .ar_card_dates {
+    padding: 14px 16px;
+}
+
+.ar_demande_achat_kanban .ar_card_header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid #edf1f4;
+}
+
+.ar_demande_achat_kanban .ar_card_ref {
+    display: block;
+    color: #667483;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.ar_demande_achat_kanban .ar_card_title {
+    display: block;
+    margin-top: 4px;
+    color: #16212c;
+    font-size: 15px;
+    line-height: 1.25;
+}
+
+.ar_demande_achat_kanban .ar_card_state {
+    align-self: flex-start;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #eef4f5;
+    color: #176b74;
+    font-size: 12px;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.ar_demande_achat_kanban .ar_card_person {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.ar_demande_achat_kanban .ar_card_avatar {
+    display: grid;
+    place-items: center;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #eaf4f2;
+    color: #176b74;
+}
+
+.ar_demande_achat_kanban .ar_card_label {
+    display: block;
+    color: #667483;
+    font-size: 11px;
+    font-weight: 750;
+    text-transform: uppercase;
+}
+
+.ar_demande_achat_kanban .ar_card_meta,
+.ar_demande_achat_kanban .ar_card_dates {
+    display: grid;
+    gap: 8px;
+    color: #4d5b66;
+    font-size: 12px;
+}
+
+.ar_demande_achat_kanban .ar_card_meta i,
+.ar_demande_achat_kanban .ar_card_dates i {
+    color: #176b74;
+    width: 14px;
+}
+
+@keyframes arDaSheetIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.995);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes arDaFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes arDaAmountFlash {
+    0% {
+        box-shadow: 0 14px 28px rgba(15, 118, 110, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+    35% {
+        box-shadow: 0 18px 36px rgba(37, 99, 235, 0.26), 0 0 0 4px rgba(37, 99, 235, 0.13), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+    100% {
+        box-shadow: 0 14px 28px rgba(15, 118, 110, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+}
+
+@keyframes arDaHeaderSweep {
+    0%,
+    58% {
+        opacity: 0;
+        transform: translateX(-120%);
+    }
+    68% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(120%);
+    }
+}
+
+@keyframes arDaOrbDrift {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(-16px, -8px) scale(1.08);
+    }
+}
+
+@keyframes arDaHeroStackFloat {
+    0%,
+    100% {
+        transform: rotateX(58deg) rotateZ(-15deg) translate3d(0, 0, 38px);
+    }
+    50% {
+        transform: rotateX(58deg) rotateZ(-11deg) translate3d(-8px, -10px, 54px);
+    }
+}
+
+@keyframes arDaCardMainLift {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 42px);
+    }
+    50% {
+        transform: translate3d(-8px, -10px, 62px);
+    }
+}
+
+@keyframes arDaCardBackLift {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 8px);
+    }
+    50% {
+        transform: translate3d(8px, 7px, 20px);
+    }
+}
+
+@keyframes arDaCardFrontLift {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 72px) rotateZ(12deg);
+    }
+    50% {
+        transform: translate3d(6px, -12px, 92px) rotateZ(18deg);
+    }
+}
+
+@keyframes arDaCoinSpin {
+    0% {
+        transform: translateZ(74px) rotateY(0deg) scaleX(1);
+    }
+    50% {
+        transform: translateZ(96px) rotateY(180deg) scaleX(0.28);
+    }
+    100% {
+        transform: translateZ(74px) rotateY(360deg) scaleX(1);
+    }
+}
+
+@keyframes arDaBadgeGlow {
+    0%,
+    100% {
+        background-position: 0% 50%;
+        box-shadow: 0 6px 16px rgba(15, 118, 110, 0.1);
+    }
+    50% {
+        background-position: 100% 50%;
+        box-shadow: 0 8px 22px rgba(37, 99, 235, 0.14);
+    }
+}
+
+@keyframes arDaAmountGradient {
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes arDaAmountFloat {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+@keyframes arDaRingSpin {
+    from {
+        transform: rotate(0deg) scale(1);
+    }
+    to {
+        transform: rotate(360deg) scale(1.05);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .o_form_view.ar_purchase_request_form *,
+    .ar_demande_achat_kanban * {
+        animation-duration: 1ms !important;
+        transition-duration: 1ms !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .o_form_view.ar_purchase_request_form .ar_purchase_request_sheet {
+        padding: 20px 16px;
+    }
+
+    .o_form_view.ar_purchase_request_form .ar_purchase_request_title,
+    .o_form_view.ar_purchase_request_form .ar_purchase_request_main_row {
+        grid-template-columns: 1fr;
+    }
+
+    .o_form_view.ar_purchase_request_form .ar_purchase_request_title h1 {
+        font-size: 24px;
+    }
+
+    .o_form_view.ar_purchase_request_form .ar_purchase_request_title > div:first-child {
+        min-height: 118px;
+        padding-right: 128px;
+    }
+
+    .o_form_view.ar_purchase_request_form .ar_purchase_request_title > div:first-child::after {
+        right: -8px;
+        top: 26px;
+        transform: rotateX(58deg) rotateZ(-15deg) translateZ(26px) scale(0.72);
+    }
+
+    .o_form_view.ar_purchase_request_form .ar_da_static_3d {
+        right: -48px;
+        transform: perspective(680px) rotateX(56deg) rotateZ(-16deg) scale(0.58);
+    }
+
+    .o_form_view.ar_purchase_request_form .ar_da_3d_stage {
+        left: 42%;
+    }
+
+    .o_form_view.ar_purchase_request_form .ar_purchase_request_amount {
+        min-width: 0;
+    }
+}

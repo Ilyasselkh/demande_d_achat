@@ -1,0 +1,52 @@
+<odoo>
+    <!-- Action -->
+    <record id="action_purchase_request_stats" model="ir.actions.act_window">
+        <field name="name">Statistiques</field>
+        <field name="res_model">purchase.request.stats</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{}</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_purchase_request_stats"
+          name="Statistiques"
+          parent="menu_purchase_request_root"
+          action="action_purchase_request_stats"
+          sequence="200"
+          groups="demande_d_achat.admin"/>
+
+    <!-- Vue -->
+    <record id="view_purchase_request_stats_form" model="ir.ui.view">
+        <field name="name">purchase.request.stats.form</field>
+        <field name="model">purchase.request.stats</field>
+        <field name="arch" type="xml">
+            <form string="Statistiques des Demandes d'Achat" create="false" edit="false">
+                <sheet>
+                    <group string="Résumé">
+                        <field name="total_requests" readonly="1"/>
+                        <field name="ongoing_requests" readonly="1"/>
+                        <field name="approved_requests" readonly="1"/>
+                        <field name="rejected_requests" readonly="1"/>
+                    </group>
+                    <group string="Montants">
+                        <field name="total_amount" readonly="1"/>
+                        <field name="avg_amount" readonly="1"/>
+                    </group>
+                    <group string="Top">
+                        <field name="top_initiator_id" readonly="1"/>
+                        <field name="top_department_id" readonly="1"/>
+                        <field name="top_cost_center_id" readonly="1"/>
+                    </group>
+                    
+                    <group string="Délais moyens (heures)">
+                        <field name="avg_first_approval_time" readonly="1"/>
+                        <field name="avg_second_approval_time" readonly="1"/>
+                        <field name="avg_finance_approval_time" readonly="1"/>
+                        <field name="avg_director_approval_time" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

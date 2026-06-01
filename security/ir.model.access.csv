@@ -1,0 +1,71 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_purchase_request_initiateur,access_purchase_request_initiateur,demande_d_achat.model_purchase_request,demande_d_achat.groupe_initiateur,1,1,1,0
+access_purchase_request_manager1,purchase.request manager1 access,demande_d_achat.model_purchase_request,demande_d_achat.groupe_manager,1,1,1,0
+access_purchase_request_acheteur,purchase.request acheteur access,demande_d_achat.model_purchase_request,demande_d_achat.groupe_acheteur,1,1,1,0
+access_purchase_request_manager_cc,purchase.request manager cc,demande_d_achat.model_purchase_request,demande_d_achat.groupe_managercc,1,1,1,0
+access_purchase_request_finance,purchase.request finance,demande_d_achat.model_purchase_request,demande_d_achat.groupe_finance,1,1,1,0
+access_purchase_request_directeur,purchase.request directeur,demande_d_achat.model_purchase_request,demande_d_achat.groupe_directeur,1,1,1,0
+access_purchase_request_admin,Admin accès DA,demande_d_achat.model_purchase_request,demande_d_achat.admin,1,1,1,1
+
+access_purchase_request_line_initiateur,purchase.request.line.initiateur,demande_d_achat.model_purchase_request_line,demande_d_achat.groupe_initiateur,1,1,1,0
+access_purchase_request_line_manager1,purchase.request.line manager1 access,demande_d_achat.model_purchase_request_line,demande_d_achat.groupe_manager,1,1,1,0
+access_purchase_request_line_acheteur,purchase.request.line acheteur access,demande_d_achat.model_purchase_request_line,demande_d_achat.groupe_acheteur,1,1,1,0
+access_purchase_request_line_manager_cc,purchase.request.line manager_cc access,demande_d_achat.model_purchase_request_line,demande_d_achat.groupe_managercc,1,1,1,0
+access_purchase_request_line_finance,purchase.request.line finance access,demande_d_achat.model_purchase_request_line,demande_d_achat.groupe_finance,1,1,1,0
+access_purchase_request_line_directeur,purchase.request.line directeur access,demande_d_achat.model_purchase_request_line,demande_d_achat.groupe_directeur,1,1,1,0
+access_purchase_request_line_admin,Admin accès lignes DA,demande_d_achat.model_purchase_request_line,demande_d_achat.admin,1,1,1,1
+
+access_partie_a_option_initiateur,partie.a.option.initiateur,demande_d_achat.model_purchase_request_partie_a_option,demande_d_achat.groupe_initiateur,1,1,1,0
+access_partie_a_option_manager1,partie.a.option manager1 access,demande_d_achat.model_purchase_request_partie_a_option,demande_d_achat.groupe_manager,1,1,1,0
+access_partie_a_option_acheteur,purchase.request.partie.a.option accès acheteur,demande_d_achat.model_purchase_request_partie_a_option,demande_d_achat.groupe_acheteur,1,1,1,0
+access_partie_a_option_manager_cc,partie.a.option manager_cc access,demande_d_achat.model_purchase_request_partie_a_option,demande_d_achat.groupe_managercc,1,1,1,0
+access_partie_a_option_finance,partie.a.option finance access,demande_d_achat.model_purchase_request_partie_a_option,demande_d_achat.groupe_finance,1,1,1,0
+access_partie_a_option_directeur,partie.a.option directeur access,demande_d_achat.model_purchase_request_partie_a_option,demande_d_achat.groupe_directeur,1,1,1,0
+access_partie_a_option_admin,partie.a.option admin access,demande_d_achat.model_purchase_request_partie_a_option,demande_d_achat.admin,1,1,1,0
+
+access_partie_b1_option_initiateur,partie.b1.option.initiateur,demande_d_achat.model_purchase_request_partie_b1_option,demande_d_achat.groupe_initiateur,1,1,1,0
+access_partie_b1_option_manager1,partie.b1.option manager1 access,demande_d_achat.model_purchase_request_partie_b1_option,demande_d_achat.groupe_manager,1,1,1,0
+access_partie_b1_option_acheteur,purchase.request.partie.b1.option accès acheteur,demande_d_achat.model_purchase_request_partie_b1_option,demande_d_achat.groupe_acheteur,1,1,1,0
+access_partie_b1_option_manager_cc,partie.b1.option manager_cc access,demande_d_achat.model_purchase_request_partie_b1_option,demande_d_achat.groupe_managercc,1,1,1,0
+access_partie_b1_option_finance,partie.b1.option finance access,demande_d_achat.model_purchase_request_partie_b1_option,demande_d_achat.groupe_finance,1,1,1,0
+access_partie_b1_option_directeur,partie.b1.option directeur access,demande_d_achat.model_purchase_request_partie_b1_option,demande_d_achat.groupe_directeur,1,1,1,0
+access_partie_b1_option_admin,partie.b1.option admin access,demande_d_achat.model_purchase_request_partie_b1_option,demande_d_achat.admin,1,1,1,0
+
+access_partie_c_option_initiateur,partie.c.option.initiateur,demande_d_achat.model_purchase_request_partie_c_option,demande_d_achat.groupe_initiateur,1,1,1,0
+access_partie_c_option_manager1,partie.c.option manager1 access,demande_d_achat.model_purchase_request_partie_c_option,demande_d_achat.groupe_manager,1,1,1,0
+access_partie_c_option_acheteur,purchase.request.partie.c.option accès acheteur,demande_d_achat.model_purchase_request_partie_c_option,demande_d_achat.groupe_acheteur,1,1,1,0
+access_partie_c_option_manager_cc,partie.c.option manager_cc access,demande_d_achat.model_purchase_request_partie_c_option,demande_d_achat.groupe_managercc,1,1,1,0
+access_partie_c_option_finance,partie.c.option finance access,demande_d_achat.model_purchase_request_partie_c_option,demande_d_achat.groupe_finance,1,1,1,0
+access_partie_c_option_directeur,partie.c.option directeur access,demande_d_achat.model_purchase_request_partie_c_option,demande_d_achat.groupe_directeur,1,1,1,0
+access_partie_c_option_admin,partie.c.option admin access,demande_d_achat.model_purchase_request_partie_c_option,demande_d_achat.admin,1,1,1,0
+
+access_manager_centre_cout_initiateur,manager.centre.cout initiateur,demande_d_achat.model_manager_centre_cout,demande_d_achat.groupe_initiateur,1,1,0,0
+access_manager_centre_cout_manager,manager.centre.cout manager,demande_d_achat.model_manager_centre_cout,demande_d_achat.groupe_manager,1,1,0,0
+access_manager_centre_cout_acheteur,manager.centre.cout acheteur,demande_d_achat.model_manager_centre_cout,demande_d_achat.groupe_acheteur,1,1,0,0
+access_manager_centre_cout_manager_cc,manager.centre.cout manager_cc,demande_d_achat.model_manager_centre_cout,demande_d_achat.groupe_managercc,1,1,0,0
+access_manager_centre_cout_finance,manager.centre.cout finance,demande_d_achat.model_manager_centre_cout,demande_d_achat.groupe_finance,1,1,0,0
+access_manager_centre_cout_directeur,manager.centre.cout directeur,demande_d_achat.model_manager_centre_cout,demande_d_achat.groupe_directeur,1,1,0,0
+access_manager_centre_cout_admin,Admin accès centres de coût,demande_d_achat.model_manager_centre_cout,demande_d_achat.admin,1,1,1,1
+
+access_attachment_initiateur,access.attachment.initiateur,base.model_ir_attachment,demande_d_achat.groupe_initiateur,1,1,1,0
+access_attachment_manager1,access.attachment.manager1,base.model_ir_attachment,demande_d_achat.groupe_manager,1,1,1,0
+access_attachment_manager_cc,access.attachment.manager_cc,base.model_ir_attachment,demande_d_achat.groupe_managercc,1,1,1,0
+access_attachment_acheteur,access.attachment.acheteur,base.model_ir_attachment,demande_d_achat.groupe_acheteur,1,1,1,0
+access_attachment_finance,access.attachment.finance,base.model_ir_attachment,demande_d_achat.groupe_finance,1,1,1,0
+access_attachment_directeur,access.attachment.directeur,base.model_ir_attachment,demande_d_achat.groupe_directeur,1,1,1,0
+access_attachment_admin,access.attachment.admin,base.model_ir_attachment,demande_d_achat.admin,1,1,1,1
+
+access_purchase_request_stats_admin,purchase.request.stats admin,model_purchase_request_stats,demande_d_achat.admin,1,1,1,1
+
+access_purchase_request_documentation_user,Documentation read,demande_d_achat.model_purchase_request_documentation,base.group_user,1,0,0,0
+access_purchase_request_documentation_admin,Documentation admin,demande_d_achat.model_purchase_request_documentation,demande_d_achat.admin,1,1,1,1
+
+
+
+
+
+
+
+
+
+
