@@ -1,131 +1,111 @@
-# Demande d'Achat
+# Demande Achat
 
+Module Odoo couvrant le cycle achat interne: expression du besoin, validation manager, devis, traitement acheteur, formulaire accompagnement, centre de cout, finance, direction, reception et archivage.
 
-> Documentation compl?te du module de demande d?achat.
+## Objectif
 
+Cette documentation explique le perimetre fonctionnel du module, les roles utilisateurs, le workflow, la configuration et les principaux objets techniques.
 
-## Vue d?ensemble
+## Utilisateurs concernes
 
-Ce module couvre le cycle d?achat interne : expression du besoin, validation manager, collecte de devis, traitement acheteur, formulaire d?accompagnement, validation centre de co?t, finance, direction, r?ception et archivage. Il contr?le les justificatifs, les fournisseurs, les options de mise en concurrence et notifie les acteurs concern?s.
+- Demandeur
+- Manager N+1
+- Acheteur
+- Manager centre de cout
+- Finance
+- MD
+- Administrateur Odoo
 
-## Utilisateurs concern?s
-
-- Demandeur : exprime le besoin et ajoute les lignes.
-- Manager N+1 : valide le besoin.
-- Acheteur : compl?te les fournisseurs, devis et analyse.
-- Manager centre de co?t : valide selon le centre choisi.
-- Finance : contr?le financier.
-- MD : validation finale.
-- Administrateur : configure centres de co?t, options et acc?s.
-
-## Workflow m?tier
+## Workflow metier
 
 1. Expression de besoin
 2. Validation Manager N+1
 3. Devis
 4. Achat
-5. Formulaire d?accompagnement
+5. Formulaire accompagnement
 6. Validation Manager CC
 7. Validation Finance
 8. Validation MD
-9. Approuv?e
-10. R?ception
-11. Archiv?e ou rejet?e
+9. Approuvee
+10. Reception
+11. Archivee ou rejetee
 
-## Fonctionnement op?rationnel
+## Fonctionnement operationnel
 
-- Cr?er la demande et les lignes d?achat.
+- Creer la demande et les lignes achat.
 - Soumettre au manager.
-- Ajouter les devis et justificatifs.
-- L?acheteur compl?te fournisseurs et pi?ces.
-- Choisir le centre de co?t et poursuivre les validations.
-- Passer en r?ception puis archiver.
+- Ajouter devis et justificatifs.
+- Completer fournisseurs et pieces cote achat.
+- Choisir centre de cout.
+- Valider finance et MD.
+- Passer en reception puis archiver.
 
-## Configuration recommand?e
+## Configuration recommandee
 
-- Cr?er les managers par centre de co?t.
-- V?rifier les options Partie A/B1/C charg?es en data.
-- Configurer les groupes et acc?s.
-- V?rifier les templates e-mail, s?quence et rapport.
-- V?rifier Chart.js si les statistiques sont utilis?es.
+- Creer les managers par centre de cout.
+- Verifier les options Partie A, B1 et C.
+- Configurer groupes et acces.
+- Verifier templates mail, sequence et rapport.
+- Verifier Chart.js pour les statistiques.
 
-## D?pendances Odoo
+## Dependances Odoo
 
 - `base`
 - `mail`
 - `hr`
 - `account`
 
-## Mod?les techniques
+## Modeles principaux
 
-- `purchase.request.documentation` : Documentation - Demande d (`models/documentation.py`)
-- `manager.centre.cout` : Managers des centres de coût (`models/manager_centre_cout.py`)
-- `purchase.request` : Demande d achat (`models/purchase_request.py`)
-- `purchase.request.line` : Purchase Request Line (`models/purchase_request.py`)
-- `purchase.request.partie.a.option` : Partie A Checkbox Option (`models/purchase_request.py`)
-- `purchase.request.partie.b1.option` : Partie B1 Checkbox Option (`models/purchase_request.py`)
-- `purchase.request.partie.c.option` : Partie C Checkbox Option (`models/purchase_request.py`)
-- `purchase.request.stats` : Statistiques Demandes d (`models/purchase_request_stats.py`)
+- `purchase.request`
+- `purchase.request.line`
+- `manager.centre.cout`
+- `purchase.request.stats`
+- `purchase.request.documentation`
+- `purchase.request.partie.a.option`
+- `purchase.request.partie.b1.option`
+- `purchase.request.partie.c.option`
 
-## Actions serveur principales
+## Structure importante du module
 
-- `action_submit` (`models/purchase_request.py`)
-- `action_first_approve` (`models/purchase_request.py`)
-- `action_submit_devis` (`models/purchase_request.py`)
-- `action_buyer_submit` (`models/purchase_request.py`)
-- `action_second_approve` (`models/purchase_request.py`)
-- `action_finance_approve` (`models/purchase_request.py`)
-- `action_director_validation` (`models/purchase_request.py`)
-- `action_director_approve` (`models/purchase_request.py`)
-- `action_pass_to_reception` (`models/purchase_request.py`)
-- `action_send_to_archive` (`models/purchase_request.py`)
-- `action_send_to_archive_rejected` (`models/purchase_request.py`)
-- `action_reject` (`models/purchase_request.py`)
-- `action_reset_to_draft` (`models/purchase_request.py`)
-- `action_print_request` (`models/purchase_request.py`)
-
-## Fichiers charg?s par le manifest
-
-- `security/security.xml`
 - `security/ir.model.access.csv`
-- `data/purchase_request_sequence.xml`
-- `views/purchase_request_views.xml`
-- `views/manager_centre_cout_views.xml`
-- `views/purchase_request_stats_views.xml`
-- `views/documentation_views.xml`
-- `views/res_users_views.xml`
+- `security/security.xml`
 - `data/mail_template.xml`
 - `data/purchase_request_option_data.xml`
+- `data/purchase_request_sequence.xml`
+- `views/documentation_views.xml`
+- `views/manager_centre_cout_views.xml`
+- `views/purchase_request_stats_views.xml`
+- `views/purchase_request_views.xml`
+- `views/res_users_views.xml`
 - `report/purchase_request_report.xml`
+- `models/__init__.py`
+- `models/documentation.py`
+- `models/manager_centre_cout.py`
+- `models/purchase_request.py`
+- `models/purchase_request_stats.py`
+- `models/res_users.py`
 
-## S?curit? et droits
+## Securite
 
-Le module s?appuie sur les fichiers suivants pour d?finir les groupes, r?gles d?enregistrement et droits d?acc?s :
+Les droits sont geres par les fichiers du dossier `security`. Il faut verifier les groupes, les regles enregistrement et les acces CSV apres installation ou modification du module.
 
-- `security/ir.model.access.csv`
-- `security/security.xml`
+## Notifications et suivi
 
-## Rapports
+Les modules qui dependent de `mail` utilisent le chatter Odoo pour tracer les changements. Les templates mail presents dans le dossier `data` servent a notifier les acteurs concernes par les transitions.
 
-- `report/purchase_request_report.xml`
+## Installation
 
-## Assets et interface
-
-- `static/src/css/purchase_request_form.css`
-- `static/src/js/purchase_request_animations.js`
-- `static/src/js/purchase_request_stats.js`
-
-## Bonnes pratiques d?utilisation
-
-- V?rifier que chaque utilisateur Odoo est li? au bon employ? lorsque le module d?pend de `hr.employee`.
-- Tester le workflow avec un dossier de test avant utilisation en production.
-- Contr?ler les groupes de s?curit? apr?s installation afin que seuls les bons r?les voient les boutons de validation.
-- Garder les templates e-mail et rapports align?s avec les proc?dures internes.
-- Sauvegarder la base avant toute modification structurelle du module.
+1. Copier le module dans le dossier addons Odoo.
+2. Redemarrer le serveur Odoo si necessaire.
+3. Mettre a jour la liste des applications.
+4. Installer ou mettre a jour le module.
+5. Verifier les droits utilisateurs et tester un dossier de bout en bout.
 
 ## Maintenance
 
-- Les ?volutions fonctionnelles doivent ?tre ajout?es dans les mod?les Python, les vues XML et les r?gles de s?curit? correspondantes.
-- Apr?s modification des vues, mettre ? jour le module depuis Odoo ou red?marrer le serveur selon le type de changement.
-- Apr?s modification des assets, vider le cache navigateur et recompiler les assets si n?cessaire.
-- Toute nouvelle ?tape de workflow doit ?tre accompagn?e des droits, boutons, notifications et filtres correspondants.
+- Ajouter toute nouvelle etape a la fois dans le modele Python, les vues XML, les droits et les notifications.
+- Tester les workflows avec plusieurs roles utilisateurs.
+- Mettre a jour les rapports et templates mail quand la procedure interne change.
+- Eviter de modifier les donnees de production sans sauvegarde.
+- Documenter toute evolution fonctionnelle dans ce README.
