@@ -164,15 +164,12 @@ class PurchaseRequest(models.Model):
         # chatter
         selection = dict(self._fields["state"].selection)
         body = Markup(
-            "&#128276; Changement d&apos;&eacute;tape : <b>%s</b> &rarr; "
-            "<b>%s</b><br/>"
-            "Demande : <b>%s</b><br/>"
-            "Action r&eacute;alis&eacute;e par : <b>%s</b>"
+            "Changement d'etape effectue par <b>%s</b> : "
+            "<b>%s</b> &rarr; <b>%s</b>."
         ) % (
+            escape(self.env.user.name),
             escape(selection.get(old_state, old_state)),
             escape(selection.get(new_state, new_state)),
-            escape(self.name or ""),
-            escape(self.env.user.name),
         )
         self.message_post(body=body, message_type="comment", subtype_xmlid="mail.mt_note")
 
