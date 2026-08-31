@@ -20,13 +20,16 @@
         'data/mail_template.xml',
         'data/purchase_request_option_data.xml',
         'report/purchase_request_report.xml',
+        'report/supplier_choice_matrix_report.xml',
     ],
 
     'assets': {
         'web.assets_backend': [
             'demande_d_achat/static/src/css/purchase_request_form.css',
-            'demande_d_achat/static/src/js/purchase_request_animations.js',
             'demande_d_achat/static/src/js/purchase_request_stats.js',
+            'demande_d_achat/static/src/js/supplier_choice_matrix.js',
+            'demande_d_achat/static/src/xml/supplier_choice_matrix.xml',
+            'demande_d_achat/static/src/css/supplier_choice_matrix.css',
             'https://cdn.jsdelivr.net/npm/chart.js',  # CDN de Chart.js
         ],
     },

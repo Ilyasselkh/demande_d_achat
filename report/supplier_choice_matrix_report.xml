@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_supplier_choice_matrix" model="report.paperformat">
+        <field name="name">Matrice fournisseurs - Paysage</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">8</field>
+        <field name="margin_bottom">8</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_supplier_choice_matrix" model="ir.actions.report">
+        <field name="name">Matrice de choix fournisseurs</field>
+        <field name="model">purchase.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">demande_d_achat.report_supplier_choice_matrix</field>
+        <field name="report_file">demande_d_achat.report_supplier_choice_matrix</field>
+        <field name="paperformat_id" ref="paperformat_supplier_choice_matrix"/>
+        <field name="print_report_name">'Matrice fournisseurs - %s' % (object.name or '')</field>
+        <field name="binding_model_id" eval="False"/>
+    </record>
+
+    <template id="report_supplier_choice_matrix">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="matrix" t-value="doc.get_supplier_matrix()"/>
+                <div class="page" style="font-family:Arial, sans-serif; font-size:9px;">
+                    <table style="width:100%; border:2px solid #111; border-collapse:collapse; margin-bottom:8px;">
+                        <tr>
+                            <td style="width:22%; border-right:2px solid #111; padding:10px; font-size:16px; font-weight:bold; text-align:center;">
+                                ARaymond
+                            </td>
+                            <td style="padding:7px; text-align:center;">
+                                <div style="font-size:9px; font-style:italic;">Enregistrement</div>
+                                <div style="font-size:18px; margin-top:3px;">Matrice de choix fournisseurs</div>
+                            </td>
+                            <td style="width:20%; border-left:2px solid #111; padding:7px;">
+                                <strong>Demande :</strong> <span t-out="doc.matrix_pdf_text(doc.name)"/><br/>
+                                <strong>Projet :</strong> <span t-out="doc.matrix_pdf_text(doc.description)"/>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table style="width:100%; border-collapse:collapse; table-layout:fixed;">
+                        <thead>
+                            <tr style="background:#b9deed; text-align:center;">
+                                <th colspan="3" style="border:1px solid #111; padding:4px;"></th>
+                                <th t-att-colspan="len(matrix['suppliers'])" style="border:1px solid #111; padding:4px;">Fournisseurs</th>
+                                <th t-att-colspan="len(matrix['suppliers'])" style="border:1px solid #111; padding:4px;">Commentaires</th>
+                            </tr>
+                            <tr style="background:#b9deed; text-align:center;">
+                                <th style="width:16%; border:1px solid #111; padding:4px;"><t t-out="doc.matrix_pdf_text(&quot;Critères d'évaluation&quot;)"/></th>
+                                <th style="width:23%; border:1px solid #111; padding:4px;">Notation</th>
+                                <th style="width:7%; border:1px solid #111; padding:4px;"><t t-out="doc.matrix_pdf_text('Pondération')"/></th>
+                                <th t-foreach="matrix['suppliers']" t-as="supplier" style="border:1px solid #111; padding:4px; background:#d2f0d8;">
+                                    <span t-out="doc.matrix_pdf_text(supplier['name'] or ('Fournisseur %s' % supplier['sequence']))"/>
+                                </th>
+                                <th t-foreach="matrix['suppliers']" t-as="supplier" style="border:1px solid #111; padding:4px; background:#f2cbed;">
+                                    <span t-out="doc.matrix_pdf_text(supplier['name'] or ('Fournisseur %s' % supplier['sequence']))"/>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="matrix['criteria']" t-as="criterion">
+                                <td style="border:1px solid #111; padding:4px; text-align:center;">
+                                    <span t-out="doc.matrix_pdf_text(criterion['name'])"/>
+                                </td>
+                                <td style="border:1px solid #111; padding:4px; white-space:pre-line;">
+                                    <span t-out="doc.matrix_pdf_text(criterion['guide'])"/>
+                                </td>
+                                <td style="border:1px solid #111; padding:4px; text-align:center; font-weight:bold; color:#e11d2e; background:#b9deed;">
+                                    <span t-esc="criterion['weight']"/>
+                                </td>
+                                <t t-foreach="matrix['suppliers']" t-as="supplier">
+                                    <t t-set="evaluation" t-value="criterion['evaluations'][supplier['id']]"/>
+                                    <td t-att-style="'border:1px solid #111; padding:4px; text-align:center; background:%s;' % ('#d2f0d8' if evaluation['applicable'] else '#dddddd')">
+                                        <t t-if="evaluation['applicable']">
+                                            <span t-esc="evaluation['score'] if evaluation['score_set'] else ''"/>
+                                        </t>
+                                        <t t-else="">N/A</t>
+                                    </td>
+                                </t>
+                                <t t-foreach="matrix['suppliers']" t-as="supplier">
+                                    <t t-set="evaluation" t-value="criterion['evaluations'][supplier['id']]"/>
+                                    <td style="border:1px solid #111; padding:4px; background:#f2cbed;">
+                                        <span t-out="doc.matrix_pdf_text(evaluation['comment'])"/>
+                                    </td>
+                                </t>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2" style="border:0;"></th>
+                                <th style="border:1px solid #111; padding:5px; background:#b9deed;">Total</th>
+                                <th t-foreach="matrix['suppliers']" t-as="supplier" style="border:1px solid #111; padding:5px; text-align:center; background:#d2f0d8;">
+                                    <span t-esc="supplier['total']"/>
+                                </th>
+                                <th t-att-colspan="len(matrix['suppliers'])" style="border:0;"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

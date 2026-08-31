@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="demande_d_achat.SupplierChoiceMatrix">
+        <div class="o_supplier_choice_matrix">
+            <button type="button" class="btn btn-primary o_open_supplier_matrix"
+                t-on-click="openMatrix">
+                <i class="fa fa-table me-1"/> Ouvrir la matrice de choix fournisseurs
+            </button>
+        </div>
+    </t>
+
+    <t t-name="demande_d_achat.SupplierChoiceMatrixDialog">
+        <Dialog title="'Matrice de choix fournisseurs'"
+            size="'xl'"
+            contentClass="'o_supplier_matrix_dialog'">
+                <div t-if="state.loading" class="text-muted text-center py-5">
+                    <i class="fa fa-spinner fa-spin me-1"/> Chargement de la matrice…
+                </div>
+                <div t-elif="!state.data" class="alert alert-warning mb-0">
+                    La matrice n'a pas pu être chargée.
+                </div>
+                <t t-else="">
+                <div class="o_matrix_heading">
+                    <div>
+                        <div class="o_matrix_document_type">Enregistrement</div>
+                        <h3>Matrice de choix fournisseurs</h3>
+                    </div>
+                    <div t-if="suggestedSupplier and suggestedSupplier.name" class="o_matrix_suggestion">
+                        <span>Fournisseur proposé</span>
+                        <strong t-esc="suggestedSupplier.name"/>
+                        <small>Meilleur score : <t t-esc="suggestedSupplier.total"/></small>
+                    </div>
+                </div>
+                <div class="alert alert-info py-2">
+                    Le meilleur score est une recommandation. Le fournisseur retenu reste soumis à une validation humaine.
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered o_matrix_table">
+                        <thead>
+                            <tr class="o_matrix_supplier_header">
+                                <th colspan="3"></th>
+                                <th t-att-colspan="state.data.suppliers.length">Fournisseurs</th>
+                                <th t-att-colspan="state.data.suppliers.length">Commentaires</th>
+                            </tr>
+                            <tr>
+                                <th>Critères d'évaluation</th>
+                                <th>Notation</th>
+                                <th>Pondération</th>
+                                <t t-foreach="state.data.suppliers" t-as="supplier" t-key="supplier.id">
+                                    <th class="o_matrix_supplier_name">
+                                        <input class="form-control" type="text"
+                                            t-att-value="supplier.name"
+                                            t-att-placeholder="'Fournisseur ' + supplier.sequence"
+                                            t-att-disabled="!state.data.editable"
+                                            t-on-blur="(event) => this.updateSupplierName(supplier, event)"/>
+                                    </th>
+                                </t>
+                                <t t-foreach="state.data.suppliers" t-as="supplier" t-key="'comment-' + supplier.id">
+                                    <th t-esc="supplier.name || ('Fournisseur ' + supplier.sequence)"/>
+                                </t>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="state.data.criteria" t-as="criterion" t-key="criterion.id">
+                                <td class="o_matrix_criterion" t-esc="criterion.name"/>
+                                <td class="o_matrix_guide"><span t-esc="criterion.guide"/></td>
+                                <td class="o_matrix_weight" t-esc="criterion.weight"/>
+                                <t t-foreach="state.data.suppliers" t-as="supplier" t-key="supplier.id">
+                                    <t t-set="evaluation" t-value="criterion.evaluations[supplier.id]"/>
+                                    <td class="o_matrix_score" t-att-class="evaluation.applicable ? '' : 'o_matrix_na'">
+                                        <input type="number" min="0" max="5" step="0.5" class="form-control"
+                                            t-att-value="evaluation.score_set ? evaluation.score : ''"
+                                            t-att-disabled="!state.data.editable || !evaluation.applicable"
+                                            t-on-change="(event) => this.updateScore(evaluation, event)"/>
+                                        <label class="o_matrix_na_toggle">
+                                            <input type="checkbox" t-att-checked="!evaluation.applicable"
+                                                t-att-disabled="!state.data.editable"
+                                                t-on-change="(event) => this.toggleApplicable(evaluation, event)"/>
+                                            N/A
+                                        </label>
+                                    </td>
+                                </t>
+                                <t t-foreach="state.data.suppliers" t-as="supplier" t-key="'comment-cell-' + supplier.id">
+                                    <t t-set="evaluation" t-value="criterion.evaluations[supplier.id]"/>
+                                    <td class="o_matrix_comment">
+                                        <textarea class="form-control" rows="2"
+                                            t-att-disabled="!state.data.editable"
+                                            t-att-value="evaluation.comment"
+                                            t-on-blur="(event) => this.updateComment(evaluation, event)"/>
+                                    </td>
+                                </t>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2"></th>
+                                <th>Total</th>
+                                <th t-foreach="state.data.suppliers" t-as="supplier" t-key="supplier.id"
+                                    class="o_matrix_total" t-esc="supplier.total"/>
+                                <th t-att-colspan="state.data.suppliers.length"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <small class="text-muted">
+                    Total fournisseur = somme (pondération × note). Les critères N/A valent 0.
+                </small>
+                </t>
+                <t t-set-slot="footer">
+                    <button type="button" class="btn btn-primary" t-on-click="downloadMatrix"
+                        t-att-disabled="state.loading">
+                        <i class="fa fa-download me-1"/> Télécharger PDF
+                    </button>
+                    <button type="button" class="btn btn-secondary" t-on-click="props.close">Fermer</button>
+                </t>
+        </Dialog>
+    </t>
+</templates>

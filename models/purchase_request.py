@@ -31,6 +31,16 @@ class PurchaseRequest(models.Model):
     name = fields.Char(string="ID demande", readonly=True, copy=False)
     state = fields.Selection(STATES, string="état", default='draft', tracking=True)
     description = fields.Text(string="Description", tracking=True)
+    supplier_category = fields.Selection([
+        ('sorting_service_provider', 'Prestataire de tri'),
+        ('raw_material_supplier', 'Frs RM'),
+        ('packaging_supplier', 'Frs packaging'),
+        ('trading_product_supplier', 'Frs trading product'),
+        ('laboratories', 'Labs'),
+        ('spare_parts_supplier', 'Frs Spare parts'),
+        ('equipment_machinery_supplier', 'Frs equipement & machinery'),
+        ('other_non_strategic', 'Autre (Non stratégique)'),
+    ], string="Catégories des fournisseurs", tracking=True)
     
     # Etat draft
             #Donnees dans section demandeur
@@ -164,12 +174,15 @@ class PurchaseRequest(models.Model):
         # chatter
         selection = dict(self._fields["state"].selection)
         body = Markup(
-            "Changement d'etape effectue par <b>%s</b> : "
-            "<b>%s</b> &rarr; <b>%s</b>."
+            "&#128276; Changement d&apos;&eacute;tape : <b>%s</b> &rarr; "
+            "<b>%s</b><br/>"
+            "Demande : <b>%s</b><br/>"
+            "Action r&eacute;alis&eacute;e par : <b>%s</b>"
         ) % (
-            escape(self.env.user.name),
             escape(selection.get(old_state, old_state)),
             escape(selection.get(new_state, new_state)),
+            escape(self.name or ""),
+            escape(self.env.user.name),
         )
         self.message_post(body=body, message_type="comment", subtype_xmlid="mail.mt_note")
 
@@ -197,6 +210,8 @@ class PurchaseRequest(models.Model):
                     missing_fields.append("- La table de description de besoin est vide. ")
                 if not record.description:
                     missing_fields.append("- Le champ description est vide. ")
+                if not record.supplier_category:
+                    missing_fields.append("- La catégorie des fournisseurs n'est pas sélectionnée.")
 
                 for line in record.line_ids:
                     if not line.description and not line.quantity:
@@ -211,10 +226,7 @@ class PurchaseRequest(models.Model):
 
             record.write({'state': 'first_manager'})
     
-        action = self.env.ref('demande_d_achat.action_purchase_request_initiateur').sudo().read()[0]
-        action['target'] = 'main'
-        action.pop('res_id', None)
-        return action
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
         
     # modif I
     def _check_buyer_suppliers_devis(self):
@@ -280,10 +292,7 @@ class PurchaseRequest(models.Model):
         employee = self.env['hr.employee'].search([('user_id', '=', self.env.user.id)], limit=1)
         subordinates = self.env['hr.employee'].search([('parent_id', '=', employee.id)])
         subordinate_user_ids = subordinates.mapped('user_id.id')
-        action = self.env.ref('demande_d_achat.action_purchase_request_initiateur').sudo().read()[0]
-        action['target'] = 'main'
-        action.pop('res_id', None)
-        return action
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
     
     # Etat Devis
             # Pieces jointes 
@@ -392,6 +401,7 @@ class PurchaseRequest(models.Model):
 
             record._check_ab1_b2_c_selected_before_submit_devis()
             record._check_required_fields_by_state()
+            record._validate_supplier_matrix()
 
         # Règle spécifique: à partir de 20 001 MAD
             if record.devis_requirement_level == 'three':
@@ -409,10 +419,7 @@ class PurchaseRequest(models.Model):
         # Passage à l'état Achat
             record.sudo().write({'state': 'buyer'})
 
-        action = self.env.ref('demande_d_achat.action_purchase_request_initiateur').sudo().read()[0]
-        action['target'] = 'main'
-        action.pop('res_id', None)
-        return action
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
     
     
     # Etat Achat
@@ -513,10 +520,7 @@ class PurchaseRequest(models.Model):
 
             record.sudo().write({'state': 'accompagnement'})
 
-            action = self.env.ref('demande_d_achat.action_purchase_request_initiateur').sudo().read()[0]
-            action['target'] = 'main'
-            action.pop('res_id', None)
-            return action
+            return {'type': 'ir.actions.client', 'tag': 'reload'}
     
 
 
@@ -686,10 +690,7 @@ class PurchaseRequest(models.Model):
                     raise ValidationError("Veuillez sélectionner un type de dépense : investissement ou centre de coût.")
             
                 record.sap_validation = False  # Réinitialise l'indicateur SAP
-        action = self.env.ref('demande_d_achat.action_purchase_request_initiateur').sudo().read()[0]
-        action['target'] = 'main'
-        action.pop('res_id', None)
-        return action    
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
         
             # Compute des managers dispos
     @api.depends('centre_de_cout_id')
@@ -722,10 +723,7 @@ class PurchaseRequest(models.Model):
                 # Si vous voulez aussi que le champ 'second_approver' soit rempli par l'utilisateur courant, ajoutez :
                 record.second_approver = self.env.user
                 record.sap_validation = False  # Réinitialise
-        action = self.env.ref('demande_d_achat.action_purchase_request_initiateur').sudo().read()[0]
-        action['target'] = 'main'
-        action.pop('res_id', None)
-        return action
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
     
     # Etat finance 
             # Bouton approuver
@@ -743,10 +741,7 @@ class PurchaseRequest(models.Model):
                 # AJOUTEZ CETTE LIGNE pour la date d'approbation Finance
                 record.date_finance_approved = fields.Datetime.now()
                 record.sap_validation = False  # Réinitialise
-        action = self.env.ref('demande_d_achat.action_purchase_request_initiateur').sudo().read()[0]
-        action['target'] = 'main'
-        action.pop('res_id', None)
-        return action
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
     
     # Etat direction
             # Bouton approuver
@@ -762,10 +757,7 @@ class PurchaseRequest(models.Model):
             record.general_director = self.env.user
             # AJOUTEZ CETTE LIGNE :
             record.date_general_director_approved = fields.Datetime.now()
-        action = self.env.ref('demande_d_achat.action_purchase_request_initiateur').sudo().read()[0]
-        action['target'] = 'main'
-        action.pop('res_id', None)
-        return action
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
     
     # Etat approuvee
             # Bouton passer a la reception
@@ -825,10 +817,7 @@ class PurchaseRequest(models.Model):
 
             rec.sudo().write({'state': 'archives'})
 
-        action = self.env.ref('demande_d_achat.action_purchase_request_initiateur').sudo().read()[0]
-        action['target'] = 'main'
-        action.pop('res_id', None)
-        return action
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
     
     # Etat rejetee
             #Bouton envoyer aux archives
@@ -836,10 +825,7 @@ class PurchaseRequest(models.Model):
         for request in self:
             if request.state == 'rejected':
                 request.write({'state': 'archives'})
-        action = self.env.ref('demande_d_achat.action_purchase_request_initiateur').sudo().read()[0]
-        action['target'] = 'main'
-        action.pop('res_id', None)
-        return action
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     # Etat archives
     statut_final = fields.Selection([

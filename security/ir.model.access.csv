@@ -59,6 +59,9 @@ access_purchase_request_stats_admin,purchase.request.stats admin,model_purchase_
 
 access_purchase_request_documentation_user,Documentation read,demande_d_achat.model_purchase_request_documentation,base.group_user,1,0,0,0
 access_purchase_request_documentation_admin,Documentation admin,demande_d_achat.model_purchase_request_documentation,demande_d_achat.admin,1,1,1,1
+access_matrix_criterion_admin,Matrice critères admin,demande_d_achat.model_purchase_request_matrix_criterion,demande_d_achat.admin,1,1,1,1
+access_matrix_supplier_admin,Matrice fournisseurs admin,demande_d_achat.model_purchase_request_matrix_supplier,demande_d_achat.admin,1,1,1,1
+access_matrix_evaluation_admin,Matrice évaluations admin,demande_d_achat.model_purchase_request_matrix_evaluation,demande_d_achat.admin,1,1,1,1
 
 
 

@@ -1,0 +1,91 @@
+.o_supplier_choice_matrix {
+    width: 100%;
+    margin: 8px 0 16px;
+}
+
+.o_open_supplier_matrix {
+    min-width: 280px;
+}
+
+.o_supplier_matrix_dialog {
+    padding: 12px;
+}
+
+.o_matrix_heading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-height: 76px;
+    border: 2px solid #1f2933;
+    text-align: center;
+    background: #fff;
+}
+
+.o_matrix_heading h3 {
+    margin: 2px 0 0;
+}
+
+.o_matrix_document_type {
+    font-size: 12px;
+    font-style: italic;
+}
+
+.o_matrix_suggestion {
+    position: absolute;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    padding: 6px 10px;
+    border-radius: 4px;
+    color: #185c37;
+    background: #d8f3df;
+}
+
+.o_matrix_table {
+    min-width: 1050px;
+    margin-bottom: 8px;
+    table-layout: fixed;
+    background: #fff;
+}
+
+.o_matrix_table th,
+.o_matrix_table td {
+    border-color: #222 !important;
+    vertical-align: middle;
+}
+
+.o_matrix_table thead th {
+    text-align: center;
+    background: #b9deed;
+}
+
+.o_matrix_supplier_header th:nth-child(4) {
+    border: 3px solid #17222b !important;
+}
+
+.o_matrix_criterion { width: 17%; text-align: center; }
+.o_matrix_guide { width: 24%; white-space: pre-line; text-align: center; }
+.o_matrix_weight { width: 7%; color: #e11d2e; font-weight: 700; text-align: center; background: #b9deed !important; }
+.o_matrix_score { min-width: 105px; text-align: center; background: #d2f0d8 !important; }
+.o_matrix_comment { min-width: 150px; background: #f2cbed !important; }
+.o_matrix_supplier_name { min-width: 120px; background: #d2f0d8 !important; }
+.o_matrix_na { background: #ddd !important; }
+
+.o_matrix_na_toggle {
+    display: block;
+    margin: 4px 0 0;
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.o_matrix_total {
+    text-align: center;
+    font-weight: 700;
+    background: #d2f0d8 !important;
+}
+
+@media (max-width: 900px) {
+    .o_matrix_heading { justify-content: flex-start; padding-left: 16px; text-align: left; }
+    .o_matrix_suggestion { position: static; margin-left: auto; margin-right: 10px; }
+}
