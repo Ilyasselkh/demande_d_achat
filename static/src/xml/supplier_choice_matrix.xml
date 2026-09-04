@@ -20,27 +20,40 @@
                     La matrice n'a pas pu être chargée.
                 </div>
                 <t t-else="">
-                <div class="o_matrix_heading">
-                    <div>
-                        <div class="o_matrix_document_type">Enregistrement</div>
-                        <h3>Matrice de choix fournisseurs</h3>
+                <div class="o_matrix_toolbar">
+                    <div class="o_matrix_recommendation_area">
+                        <div t-if="suggestedSupplier and suggestedSupplier.name" class="o_matrix_suggestion">
+                            <span class="o_matrix_suggestion_icon"><i class="fa fa-trophy"/></span>
+                            <span class="o_matrix_suggestion_content">
+                                <small>Fournisseur recommandé</small>
+                                <strong t-esc="suggestedSupplier.name"/>
+                            </span>
+                            <span class="o_matrix_score_badge">
+                                <small>Score</small>
+                                <strong t-esc="suggestedSupplier.total"/>
+                            </span>
+                        </div>
+                        <div class="o_matrix_validation_note">
+                            <i class="fa fa-info-circle me-1"/>
+                            Recommandation indicative — la sélection reste soumise à une validation humaine.
+                        </div>
                     </div>
-                    <div t-if="suggestedSupplier and suggestedSupplier.name" class="o_matrix_suggestion">
-                        <span>Fournisseur proposé</span>
-                        <strong t-esc="suggestedSupplier.name"/>
-                        <small>Meilleur score : <t t-esc="suggestedSupplier.total"/></small>
-                    </div>
+                    <button t-if="state.data.editable" type="button"
+                        class="btn btn-success o_matrix_add_supplier" t-on-click="addSupplier">
+                        <i class="fa fa-plus me-1"/> Ajouter un fournisseur
+                    </button>
                 </div>
-                <div class="alert alert-info py-2">
-                    Le meilleur score est une recommandation. Le fournisseur retenu reste soumis à une validation humaine.
-                </div>
-                <div class="table-responsive">
+                <div class="table-responsive o_matrix_table_shell">
                     <table class="table table-bordered o_matrix_table">
                         <thead>
                             <tr class="o_matrix_supplier_header">
                                 <th colspan="3"></th>
-                                <th t-att-colspan="state.data.suppliers.length">Fournisseurs</th>
-                                <th t-att-colspan="state.data.suppliers.length">Commentaires</th>
+                                <th class="o_matrix_group_suppliers" t-att-colspan="state.data.suppliers.length">
+                                    <i class="fa fa-building-o me-1"/> Fournisseurs
+                                </th>
+                                <th class="o_matrix_group_comments" t-att-colspan="state.data.suppliers.length">
+                                    <i class="fa fa-comments-o me-1"/> Commentaires
+                                </th>
                             </tr>
                             <tr>
                                 <th>Critères d'évaluation</th>
@@ -48,15 +61,23 @@
                                 <th>Pondération</th>
                                 <t t-foreach="state.data.suppliers" t-as="supplier" t-key="supplier.id">
                                     <th class="o_matrix_supplier_name">
-                                        <input class="form-control" type="text"
-                                            t-att-value="supplier.name"
-                                            t-att-placeholder="'Fournisseur ' + supplier.sequence"
-                                            t-att-disabled="!state.data.editable"
-                                            t-on-blur="(event) => this.updateSupplierName(supplier, event)"/>
+                                        <div class="d-flex gap-1 align-items-center">
+                                            <input class="form-control" type="text"
+                                                t-att-value="supplier.name"
+                                                t-att-placeholder="'Fournisseur ' + supplier.sequence"
+                                                t-att-disabled="!state.data.editable"
+                                                t-on-blur="(event) => this.updateSupplierName(supplier, event)"/>
+                                            <button t-if="state.data.editable and state.data.suppliers.length &gt; 1"
+                                                type="button" class="btn btn-sm btn-outline-danger"
+                                                title="Supprimer ce fournisseur"
+                                                t-on-click="() => this.removeSupplier(supplier)">
+                                                <i class="fa fa-trash"/>
+                                            </button>
+                                        </div>
                                     </th>
                                 </t>
                                 <t t-foreach="state.data.suppliers" t-as="supplier" t-key="'comment-' + supplier.id">
-                                    <th t-esc="supplier.name || ('Fournisseur ' + supplier.sequence)"/>
+                                    <th class="o_matrix_comment_name" t-esc="supplier.name || ('Fournisseur ' + supplier.sequence)"/>
                                 </t>
                             </tr>
                         </thead>
@@ -102,7 +123,7 @@
                         </tfoot>
                     </table>
                 </div>
-                <small class="text-muted">
+                <small class="text-muted o_matrix_formula">
                     Total fournisseur = somme (pondération × note). Les critères N/A valent 0.
                 </small>
                 </t>

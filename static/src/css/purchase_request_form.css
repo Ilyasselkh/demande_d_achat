@@ -20,3 +20,277 @@
 .o_form_view.o_purchase_request_full_width .o_inner_group {
     width: 100%;
 }
+
+/* Modern UI for the purchase request module. Matrix styles remain isolated. */
+.o_form_view.o_purchase_request_full_width,
+.o_form_view.o_ar_modern_form {
+    --ar-primary: #176b87;
+    --ar-primary-dark: #0f536c;
+    --ar-accent: #20a464;
+    --ar-border: #dbe4ec;
+    --ar-muted: #64748b;
+    --ar-surface: #ffffff;
+    --ar-background: #f4f7fa;
+    background: var(--ar-background);
+}
+
+.o_form_view.o_purchase_request_full_width .o_form_sheet_bg,
+.o_form_view.o_ar_modern_form .o_form_sheet_bg {
+    padding: 18px 0 30px;
+    background:
+        radial-gradient(circle at 8% 2%, rgba(23, 107, 135, .08), transparent 26%),
+        var(--ar-background);
+}
+
+.o_form_view.o_purchase_request_full_width .o_form_sheet,
+.o_form_view.o_ar_modern_form .o_form_sheet {
+    padding: 22px 24px;
+    border: 1px solid var(--ar-border);
+    border-radius: 16px;
+    background: var(--ar-surface);
+    box-shadow: 0 10px 32px rgba(15, 23, 42, .07);
+}
+
+.o_form_view.o_ar_modern_form .o_form_sheet {
+    max-width: 1280px;
+}
+
+/* Status and form header */
+.o_form_view.o_purchase_request_full_width .o_form_statusbar {
+    margin-top: 12px;
+    padding: 8px 12px;
+    border: 1px solid var(--ar-border);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 5px 18px rgba(15, 23, 42, .06);
+}
+
+.o_form_view.o_purchase_request_full_width .o_statusbar_status .o_arrow_button {
+    min-height: 34px;
+    font-weight: 600;
+}
+
+.o_form_view.o_purchase_request_full_width .o_statusbar_status .o_arrow_button.o_arrow_button_current,
+.o_form_view.o_purchase_request_full_width .o_statusbar_status .o_arrow_button.o_arrow_button_current:disabled {
+    color: #fff;
+    background: var(--ar-primary);
+}
+
+/* Main business sections */
+.o_form_view.o_purchase_request_full_width .o_ar_section {
+    position: relative;
+    margin: 0 0 18px;
+    padding: 18px 18px 14px;
+    border: 1px solid var(--ar-border);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(15, 23, 42, .045);
+    overflow: hidden;
+}
+
+.o_form_view.o_purchase_request_full_width .o_ar_section::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+    content: "";
+    background: var(--ar-primary);
+}
+
+.o_form_view.o_purchase_request_full_width .o_ar_section_buyer::before { background: #6d63b5; }
+.o_form_view.o_purchase_request_full_width .o_ar_section_support::before { background: #d18a2e; }
+.o_form_view.o_purchase_request_full_width .o_ar_section_actions::before { background: var(--ar-accent); }
+
+.o_form_view.o_purchase_request_full_width .o_ar_section > .o_horizontal_separator {
+    margin: -2px 0 16px;
+    color: #243b53;
+    font-size: 17px;
+    font-weight: 750;
+    letter-spacing: -.01em;
+}
+
+.o_form_view.o_purchase_request_full_width .o_ar_subsection {
+    padding: 14px;
+    border: 1px solid #e5eaf0;
+    border-radius: 11px;
+    background: #f9fbfc;
+}
+
+.o_form_view.o_purchase_request_full_width .o_horizontal_separator {
+    margin-top: 14px;
+    color: var(--ar-primary-dark);
+    font-weight: 700;
+}
+
+/* Fields */
+.o_form_view.o_purchase_request_full_width .o_form_label,
+.o_form_view.o_ar_modern_form .o_form_label {
+    color: #34465a;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.o_form_view.o_purchase_request_full_width .o_input,
+.o_form_view.o_purchase_request_full_width .o_field_widget input:not([type="checkbox"]):not([type="radio"]),
+.o_form_view.o_purchase_request_full_width .o_field_widget textarea,
+.o_form_view.o_purchase_request_full_width .o_field_widget select,
+.o_form_view.o_ar_modern_form .o_input,
+.o_form_view.o_ar_modern_form .o_field_widget input:not([type="checkbox"]):not([type="radio"]),
+.o_form_view.o_ar_modern_form .o_field_widget textarea {
+    min-height: 36px;
+    border-color: #cdd8e3;
+    border-radius: 8px;
+    background-color: #fbfdff;
+    transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
+}
+
+.o_form_view.o_purchase_request_full_width .o_field_widget textarea,
+.o_form_view.o_ar_modern_form .o_field_widget textarea {
+    padding: 8px 10px;
+}
+
+.o_form_view.o_purchase_request_full_width .o_input:focus,
+.o_form_view.o_purchase_request_full_width .o_field_widget input:not([type="checkbox"]):not([type="radio"]):focus,
+.o_form_view.o_purchase_request_full_width .o_field_widget textarea:focus,
+.o_form_view.o_ar_modern_form .o_input:focus,
+.o_form_view.o_ar_modern_form .o_field_widget input:not([type="checkbox"]):not([type="radio"]):focus,
+.o_form_view.o_ar_modern_form .o_field_widget textarea:focus {
+    border-color: #54a1ba;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(23, 107, 135, .12);
+}
+
+.o_form_view.o_purchase_request_full_width .o_field_boolean .form-check-input,
+.o_form_view.o_ar_modern_form .o_field_boolean .form-check-input {
+    min-height: 0;
+    border-color: #9eb1c3;
+    background-color: #fff;
+    box-shadow: none;
+}
+
+.o_form_view.o_purchase_request_full_width .o_field_boolean .form-check-input:checked,
+.o_form_view.o_ar_modern_form .o_field_boolean .form-check-input:checked {
+    border-color: var(--ar-primary);
+    background-color: var(--ar-primary);
+}
+
+.o_form_view.o_purchase_request_full_width .o_field_boolean .form-check-input:focus,
+.o_form_view.o_ar_modern_form .o_field_boolean .form-check-input:focus {
+    box-shadow: 0 0 0 3px rgba(23, 107, 135, .14);
+}
+
+.o_form_view.o_purchase_request_full_width .o_field_many2many_tags .badge,
+.o_form_view.o_ar_modern_form .o_field_many2many_tags .badge {
+    border: 0;
+    border-radius: 999px;
+    background: #e3f2f7;
+    color: var(--ar-primary-dark);
+    font-weight: 600;
+}
+
+.o_form_view.o_purchase_request_full_width .o_field_many2many_binary .o_attachments,
+.o_form_view.o_ar_modern_form .o_field_many2many_binary .o_attachments {
+    gap: 8px;
+}
+
+/* Embedded lists */
+.o_form_view.o_purchase_request_full_width .o_list_renderer,
+.o_form_view.o_ar_modern_form .o_list_renderer {
+    border: 1px solid var(--ar-border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.o_form_view.o_purchase_request_full_width .o_list_table thead,
+.o_form_view.o_ar_modern_form .o_list_table thead,
+.o_list_view .o_ar_modern_list thead {
+    color: #334155;
+    background: #eaf3f7;
+}
+
+.o_form_view.o_purchase_request_full_width .o_list_table th,
+.o_form_view.o_ar_modern_form .o_list_table th,
+.o_list_view .o_ar_modern_list th {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom-color: #ccdbe4;
+    font-weight: 700;
+}
+
+.o_form_view.o_purchase_request_full_width .o_list_table tbody tr:hover,
+.o_form_view.o_ar_modern_form .o_list_table tbody tr:hover,
+.o_list_view .o_ar_modern_list tbody tr:hover {
+    background: #f3f9fb;
+}
+
+/* Action area and buttons */
+.o_form_view.o_purchase_request_full_width .o_ar_section_actions .o_inner_group {
+    align-items: center;
+}
+
+.o_form_view.o_purchase_request_full_width button.btn,
+.o_form_view.o_purchase_request_full_width button.oe_highlight,
+.o_form_view.o_ar_modern_form button.btn {
+    min-height: 36px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-weight: 650;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.o_form_view.o_purchase_request_full_width button.btn:hover,
+.o_form_view.o_purchase_request_full_width button.oe_highlight:hover,
+.o_form_view.o_ar_modern_form button.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(15, 23, 42, .12);
+}
+
+.o_form_view.o_purchase_request_full_width button.oe_highlight,
+.o_form_view.o_purchase_request_full_width button.btn-primary {
+    border-color: var(--ar-primary);
+    background: var(--ar-primary);
+}
+
+.o_form_view.o_purchase_request_full_width button[name="action_reject"] {
+    border-color: #dc3545;
+    background: #dc3545;
+    color: #fff;
+}
+
+/* Stats page */
+.o_form_view.o_ar_stats_form .o_group {
+    margin-bottom: 16px;
+    padding: 16px;
+    border: 1px solid var(--ar-border);
+    border-radius: 12px;
+    background: linear-gradient(145deg, #fff, #f8fbfd);
+    box-shadow: 0 5px 16px rgba(15, 23, 42, .045);
+}
+
+.o_form_view.o_ar_stats_form .o_horizontal_separator {
+    color: var(--ar-primary-dark);
+    font-size: 15px;
+    font-weight: 750;
+}
+
+@media (max-width: 992px) {
+    .o_form_view.o_purchase_request_full_width .o_form_sheet_bg > .o_form_sheet {
+        width: calc(100% - 16px);
+        margin-right: 8px;
+        margin-left: 8px;
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .o_form_view.o_purchase_request_full_width .o_form_statusbar {
+        width: calc(100% - 16px);
+        margin-right: 8px;
+        margin-left: 8px;
+    }
+
+    .o_form_view.o_purchase_request_full_width .o_ar_section {
+        padding: 14px 12px 10px;
+    }
+
+}

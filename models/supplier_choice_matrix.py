@@ -55,6 +55,13 @@ class PurchaseRequestMatrixSupplier(models.Model):
     request_id = fields.Many2one("purchase.request", required=True, ondelete="cascade", index=True)
     sequence = fields.Integer(required=True)
     name = fields.Char(string="Fournisseur")
+    quotation_ids = fields.Many2many(
+        "ir.attachment",
+        "purchase_request_matrix_supplier_attachment_rel",
+        "supplier_id",
+        "attachment_id",
+        string="Devis fournisseur",
+    )
     evaluation_ids = fields.One2many("purchase.request.matrix.evaluation", "supplier_id")
     total_score = fields.Float(compute="_compute_total_score", store=True, digits=(16, 2))
 
@@ -115,6 +122,7 @@ class PurchaseRequest(models.Model):
     matrix_widget = fields.Char(compute="_compute_matrix_widget")
     matrix_pdf_file = fields.Binary(string="PDF matrice fournisseurs", attachment=False, copy=False)
     matrix_pdf_filename = fields.Char(copy=False)
+    matrix_dynamic_initialized = fields.Boolean(default=False, copy=False)
     matrix_criterion_ids = fields.One2many(
         "purchase.request.matrix.criterion", "request_id", string="Critères fournisseurs"
     )
@@ -127,6 +135,12 @@ class PurchaseRequest(models.Model):
         compute="_compute_matrix_suggested_supplier",
         store=True,
         compute_sudo=True,
+    )
+    matrix_selected_supplier_id = fields.Many2one(
+        "purchase.request.matrix.supplier",
+        string="Fournisseur retenu",
+        domain="[('request_id', '=', id)]",
+        tracking=True,
     )
 
     def _compute_matrix_widget(self):
@@ -147,19 +161,6 @@ class PurchaseRequest(models.Model):
         if write and (self.state != "devis" or self.initiator_id != self.env.user):
             raise AccessError("La matrice est modifiable uniquement par l'initiateur à l'étape Devis.")
 
-    def _matrix_supplier_count(self):
-        self.ensure_one()
-        if self.form_option in ("ac", "b2c"):
-            return 1
-        base_count = {"one": 1, "two": 2, "three": 3}.get(self.devis_requirement_level, 1)
-        if self.devis_requirement_level == "three" and self.exceptional_validation:
-            attachment_count = len(self.devis_attachment_ids)
-            if attachment_count in (1, 2):
-                base_count = attachment_count
-        if self.form_option == "ab1":
-            base_count = max(base_count, 2)
-        return base_count
-
     def _ensure_supplier_matrix(self):
         self.ensure_one()
         Criterion = self.env["purchase.request.matrix.criterion"].sudo()
@@ -178,19 +179,48 @@ class PurchaseRequest(models.Model):
                 for sequence, name, guide, weight in DEFAULT_CRITERIA
             ])
 
-        suppliers_by_sequence = {supplier.sequence: supplier for supplier in self.matrix_supplier_ids}
-        legacy_names = {
-            1: self.buyer_fournisseur_a_name,
-            2: self.buyer_fournisseur_b_name,
-            3: self.buyer_fournisseur_c_name,
+        suppliers = self.matrix_supplier_ids.sorted("sequence")
+        if not suppliers:
+            first_name = self.buyer_fournisseur_a_name or ""
+            suppliers = Supplier.create({
+                "request_id": self.id,
+                "sequence": 1,
+                "name": first_name,
+                "quotation_ids": [(6, 0, self.devis_A.ids)],
+            })
+
+        legacy_values = {
+            1: (self.buyer_fournisseur_a_name, self.devis_A),
+            2: (self.buyer_fournisseur_b_name, self.devis_B),
+            3: (self.buyer_fournisseur_c_name, self.devis_C),
         }
-        for sequence in range(1, 4):
-            if sequence not in suppliers_by_sequence:
-                suppliers_by_sequence[sequence] = Supplier.create({
-                    "request_id": self.id,
-                    "sequence": sequence,
-                    "name": legacy_names[sequence],
-                })
+        for supplier in suppliers.filtered(lambda item: item.sequence in legacy_values):
+            legacy_name, legacy_quotations = legacy_values[supplier.sequence]
+            values = {}
+            if not supplier.name and legacy_name:
+                values["name"] = legacy_name
+            if not supplier.quotation_ids and legacy_quotations:
+                values["quotation_ids"] = [(6, 0, legacy_quotations.ids)]
+            if values:
+                supplier.write(values)
+
+        if not self.matrix_dynamic_initialized:
+            # Migration unique des anciens emplacements techniques B/C vides.
+            removable_placeholders = suppliers.filtered(
+                lambda supplier: supplier.sequence > 1
+                and not supplier.name
+                and not supplier.quotation_ids
+                and all(
+                    not evaluation.score_set
+                    and not evaluation.comment
+                    and evaluation.applicable
+                    for evaluation in supplier.evaluation_ids
+                )
+            )
+            if removable_placeholders and len(suppliers) - len(removable_placeholders) >= 1:
+                removable_placeholders.unlink()
+                suppliers = self.matrix_supplier_ids.sorted("sequence")
+            self.sudo().matrix_dynamic_initialized = True
 
         existing = {
             (evaluation.criterion_id.id, evaluation.supplier_id.id)
@@ -200,7 +230,7 @@ class PurchaseRequest(models.Model):
         }
         values = []
         for criterion in self.matrix_criterion_ids:
-            for supplier in suppliers_by_sequence.values():
+            for supplier in suppliers:
                 if (criterion.id, supplier.id) not in existing:
                     values.append({"criterion_id": criterion.id, "supplier_id": supplier.id})
         if values:
@@ -211,8 +241,7 @@ class PurchaseRequest(models.Model):
         request = self.sudo()
         request._ensure_supplier_matrix()
         request.invalidate_recordset()
-        supplier_count = request._matrix_supplier_count()
-        suppliers = request.matrix_supplier_ids.sorted("sequence")[:supplier_count]
+        suppliers = request.matrix_supplier_ids.sorted("sequence")
         evaluations = self.env["purchase.request.matrix.evaluation"].sudo().search([
             ("request_id", "=", request.id),
             ("supplier_id", "in", suppliers.ids),
@@ -256,9 +285,62 @@ class PurchaseRequest(models.Model):
         if not supplier or supplier.request_id.id != self.id:
             raise ValidationError("Fournisseur invalide pour cette demande.")
         clean_name = (name or "").strip()
+        duplicate = self.env["purchase.request.matrix.supplier"].sudo().search_count([
+            ("request_id", "=", self.id),
+            ("id", "!=", supplier.id),
+            ("name", "=ilike", clean_name),
+        ]) if clean_name else 0
+        if duplicate:
+            raise ValidationError("Ce fournisseur existe déjà dans la matrice.")
         supplier.name = clean_name
-        legacy_field = {1: "buyer_fournisseur_a_name", 2: "buyer_fournisseur_b_name", 3: "buyer_fournisseur_c_name"}[supplier.sequence]
-        self.sudo().write({legacy_field: clean_name})
+        legacy_field = {
+            1: "buyer_fournisseur_a_name",
+            2: "buyer_fournisseur_b_name",
+            3: "buyer_fournisseur_c_name",
+        }.get(supplier.sequence)
+        if legacy_field:
+            self.sudo().write({legacy_field: clean_name})
+        return self.get_supplier_matrix()
+
+    def add_supplier_matrix_supplier(self):
+        self._matrix_check_access(write=True)
+        request = self.sudo()
+        request._ensure_supplier_matrix()
+        next_sequence = max(request.matrix_supplier_ids.mapped("sequence"), default=0) + 1
+        supplier = self.env["purchase.request.matrix.supplier"].sudo().create({
+            "request_id": request.id,
+            "sequence": next_sequence,
+        })
+        self.env["purchase.request.matrix.evaluation"].sudo().create([
+            {"criterion_id": criterion.id, "supplier_id": supplier.id}
+            for criterion in request.matrix_criterion_ids
+        ])
+        return self.get_supplier_matrix()
+
+    def remove_supplier_matrix_supplier(self, supplier_id, confirmed=False):
+        self._matrix_check_access(write=True)
+        suppliers = self.sudo().matrix_supplier_ids
+        if len(suppliers) <= 1:
+            raise ValidationError("La matrice doit conserver au moins un fournisseur.")
+        supplier = suppliers.filtered(lambda item: item.id == supplier_id)
+        if not supplier:
+            raise ValidationError("Fournisseur invalide pour cette demande.")
+        has_data = bool(
+            supplier.name
+            or supplier.quotation_ids
+            or any(
+                evaluation.score_set or evaluation.comment or not evaluation.applicable
+                for evaluation in supplier.evaluation_ids
+            )
+        )
+        if has_data and not confirmed:
+            return {"confirmation_required": True, "supplier_name": supplier.name or "ce fournisseur"}
+        supplier.unlink()
+        for sequence, remaining_supplier in enumerate(
+            self.sudo().matrix_supplier_ids.sorted("sequence"), start=1
+        ):
+            if remaining_supplier.sequence != sequence:
+                remaining_supplier.sequence = sequence
         return self.get_supplier_matrix()
 
     def update_supplier_matrix_evaluation(self, evaluation_id, values):
@@ -444,8 +526,9 @@ class PurchaseRequest(models.Model):
                 continue
             matrix_request = request.sudo()
             matrix_request._ensure_supplier_matrix()
-            expected = matrix_request._matrix_supplier_count()
-            suppliers = matrix_request.matrix_supplier_ids.sorted("sequence")[:expected]
+            suppliers = matrix_request.matrix_supplier_ids.sorted("sequence")
+            if not suppliers:
+                raise ValidationError("Ajoutez au moins un fournisseur dans la matrice.")
             missing_names = suppliers.filtered(lambda supplier: not (supplier.name or "").strip())
             if missing_names:
                 raise ValidationError("Veuillez renseigner le nom de chaque fournisseur dans la matrice.")
@@ -455,3 +538,6 @@ class PurchaseRequest(models.Model):
                     raise ValidationError("La matrice d'évaluation est incomplète.")
                 if any(evaluation.applicable and not evaluation.score_set for evaluation in evaluations):
                     raise ValidationError("Veuillez noter chaque critère applicable pour chaque fournisseur.")
+            normalized_names = [(supplier.name or "").strip().casefold() for supplier in suppliers]
+            if len(normalized_names) != len(set(normalized_names)):
+                raise ValidationError("Un même fournisseur ne peut pas apparaître plusieurs fois dans la matrice.")

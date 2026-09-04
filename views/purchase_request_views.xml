@@ -43,7 +43,7 @@
           <group col="1">
 
             <!-- Section demandeur -->
-            <group string="------> Section demandeur" colspan="4">
+            <group string="Demandeur" colspan="4" class="o_ar_section o_ar_section_requester">
 
               <separator string="↳ Informations Générales" colspan="4"/>
               <group col="4">
@@ -58,8 +58,6 @@
               <separator colspan="4"/>
 
               <group col="2">
-
-                <!-- GAUCHE : Table de besoin -->
                 <group string="↳ Description de besoin" colspan="2">
                   <field name="line_ids" readonly="not can_edit_need_section">
                     <list editable="bottom">
@@ -70,20 +68,16 @@
                   </field>
                 </group>
 
-                <!-- DROITE : Section devis + Montant -->
-                <group string="------> Section devis" colspan="4" invisible="state not in ['devis','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives','rejected']">
-
+                <group string="Devis" colspan="4" class="o_ar_subsection" invisible="state not in ['devis','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives','rejected']">
                   <separator string="↳ Devis" colspan="1"/>
                   <field name="devis_attachment_ids" widget="many2many_binary" string="Devis" readonly="state != 'devis' or not is_initiator"/>
 
                   <separator string="↳ Montant" colspan="1"/>
-
                   <field name="is_buyer" invisible="1"/>
                   <field name="is_initiator_or_buyer" invisible="1"/>
 
                   <group col="1">
                     <field name="devis_requirement_level" readonly="state != 'devis' or not is_initiator"/>
-
                     <div invisible="devis_requirement_level != 'three'">
                       <label for="exceptional_validation" string="Dérogation des 3 devis" class="o_form_label"/>
                       <field name="exceptional_validation" nolabel="1" class="oe_inline" readonly="not is_initiator_or_buyer or state != 'devis'"/>
@@ -93,9 +87,7 @@
                       </div>
                     </div>
                   </group>
-
                 </group>
-
               </group>
 
               <group colspan="4" invisible="state not in ['devis','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives','rejected']">
@@ -149,28 +141,48 @@
             <!-- FIN Section demandeur -->
 
             <!-- Section Acheteur -->
-            <group string="------> Section Acheteur" colspan="4" invisible="state not in ['buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives']">
+            <group string="Acheteur" colspan="4" class="o_ar_section o_ar_section_buyer" invisible="state not in ['buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives']">
               <field name="is_buyer" invisible="1"/>
 
-              <group string="Fournisseurs" col="4">
-                <field name="buyer_fournisseur_a_name" readonly="not is_buyer or state != 'buyer'"/>
-                <field name="buyer_fournisseur_b_name" invisible="buyer_display_mode == 'one'" readonly="not is_buyer or state != 'buyer'"/>
-                <field name="buyer_fournisseur_c_name" invisible="buyer_display_mode != 'three'" readonly="not is_buyer or state != 'buyer'"/>
+              <group string="Fournisseurs et devis" colspan="4" invisible="supplier_category == 'other_non_strategic'">
+                <field name="matrix_supplier_ids" readonly="not is_buyer or state != 'buyer'">
+                  <list create="0" delete="0">
+                    <field name="sequence" column_invisible="True"/>
+                    <field name="name" readonly="1"/>
+                    <field name="quotation_ids" widget="many2many_tags"/>
+                    <field name="total_score" readonly="1"/>
+                  </list>
+                  <form string="Fournisseur et devis" create="0" delete="0">
+                    <group>
+                      <field name="name" readonly="1"/>
+                      <field name="quotation_ids" widget="many2many_binary"/>
+                      <field name="total_score" readonly="1"/>
+                    </group>
+                  </form>
+                </field>
               </group>
 
-              <group col="2" string="Devis" invisible="not devis_requirement_level">
-                <field name="devis_A" widget="many2many_binary" readonly="not is_buyer or state != 'buyer'"/>
-                <field name="devis_B" widget="many2many_binary" invisible="buyer_display_mode == 'one'" readonly="not is_buyer or state != 'buyer'"/>
-                <field name="devis_C" widget="many2many_binary" invisible="buyer_display_mode != 'three'" readonly="not is_buyer or state != 'buyer'"/>
+              <group string="Fournisseurs et devis" colspan="4" invisible="supplier_category != 'other_non_strategic'">
+                <group string="Fournisseurs" col="4">
+                  <field name="buyer_fournisseur_a_name" readonly="not is_buyer or state != 'buyer'"/>
+                  <field name="buyer_fournisseur_b_name" invisible="buyer_display_mode == 'one'" readonly="not is_buyer or state != 'buyer'"/>
+                  <field name="buyer_fournisseur_c_name" invisible="buyer_display_mode != 'three'" readonly="not is_buyer or state != 'buyer'"/>
+                </group>
+                <group col="2" string="Devis" invisible="not devis_requirement_level">
+                  <field name="devis_A" widget="many2many_binary" readonly="not is_buyer or state != 'buyer'"/>
+                  <field name="devis_B" widget="many2many_binary" invisible="buyer_display_mode == 'one'" readonly="not is_buyer or state != 'buyer'"/>
+                  <field name="devis_C" widget="many2many_binary" invisible="buyer_display_mode != 'three'" readonly="not is_buyer or state != 'buyer'"/>
+                </group>
               </group>
             </group>
 
             <!-- Section formulaire d'accompagnement -->
-            <group string="------> Section du formulaire d'accompagnement" colspan="4" invisible="state not in ['accompagnement','second_manager','finance_validation','general_director','approved','reception','archives']">
+            <group string="Formulaire d'accompagnement" colspan="4" class="o_ar_section o_ar_section_support" invisible="state not in ['accompagnement','second_manager','finance_validation','general_director','approved','reception','archives']">
 
               <group col="4">
                 <field name="id_sap" placeholder="Entrer l'ID SAP" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
-                <field name="fournisseur_retenu" placeholder="Choisir le fournisseur" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
+                <field name="matrix_selected_supplier_id" placeholder="Choisir le fournisseur" invisible="supplier_category == 'other_non_strategic'" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
+                <field name="fournisseur_retenu" placeholder="Choisir le fournisseur" invisible="supplier_category != 'other_non_strategic'" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
                 <field name="devis_retenu" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
                 <field name="type_depense" placeholder="Choisir le type de dépense" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
               </group>
@@ -189,7 +201,7 @@
             </group>
 
             <!-- Actions -->
-            <group string="------> Action(s)" colspan="4" invisible="state == 'archives'">
+            <group string="Actions" colspan="4" class="o_ar_section o_ar_section_actions" invisible="state == 'archives'">
               <group>
                 <field name="sap_validation" string="J'ai validé sur SAP (Ne cocher que si validé sur SAP)" invisible="not can_finance_approve"/>
               </group>
@@ -271,7 +283,7 @@
     <field name="name">purchase.request.list</field>
     <field name="model">purchase.request</field>
     <field name="arch" type="xml">
-      <list string="Demandes Archivées" decoration-success="statut_final == 'approved'" decoration-danger="statut_final == 'rejected'">
+      <list string="Demandes Archivées" class="o_ar_modern_list" decoration-success="statut_final == 'approved'" decoration-danger="statut_final == 'rejected'">
         <field name="name"/>
         <field name="id_sap"/>
         <field name="initiator_id"/>

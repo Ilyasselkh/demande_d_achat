@@ -109,4 +109,48 @@
       <field name="domain_force">[(1, '=', 1)]</field>
       <field name="groups" eval="[(4, ref('demande_d_achat.groupe_directeur'))]"/>
   </record>
+
+  <!-- Accès aux fournisseurs dynamiques selon les mêmes périmètres que la demande parente. -->
+  <record id="rule_matrix_supplier_initiateur" model="ir.rule">
+      <field name="name">Matrice fournisseur - Initiateur</field>
+      <field name="model_id" ref="model_purchase_request_matrix_supplier"/>
+      <field name="domain_force">[('request_id.initiator_id', '=', user.id)]</field>
+      <field name="groups" eval="[(4, ref('demande_d_achat.groupe_initiateur'))]"/>
+  </record>
+  <record id="rule_matrix_supplier_manager" model="ir.rule">
+      <field name="name">Matrice fournisseur - Manager N+1</field>
+      <field name="model_id" ref="model_purchase_request_matrix_supplier"/>
+      <field name="domain_force">['|', ('request_id.initiator_id', '=', user.id), ('request_id.initiator_id.employee_id.parent_id.user_id', '=', user.id)]</field>
+      <field name="groups" eval="[(4, ref('demande_d_achat.groupe_manager'))]"/>
+  </record>
+  <record id="rule_matrix_supplier_manager_cc" model="ir.rule">
+      <field name="name">Matrice fournisseur - Manager CC</field>
+      <field name="model_id" ref="model_purchase_request_matrix_supplier"/>
+      <field name="domain_force">['|', ('request_id.initiator_id', '=', user.id), ('request_id.manager_centre_cout_id', '=', user.id)]</field>
+      <field name="groups" eval="[(4, ref('demande_d_achat.groupe_managercc'))]"/>
+  </record>
+  <record id="rule_matrix_supplier_acheteur" model="ir.rule">
+      <field name="name">Matrice fournisseur - Acheteur</field>
+      <field name="model_id" ref="model_purchase_request_matrix_supplier"/>
+      <field name="domain_force">[(1, '=', 1)]</field>
+      <field name="groups" eval="[(4, ref('demande_d_achat.groupe_acheteur'))]"/>
+  </record>
+  <record id="rule_matrix_supplier_finance" model="ir.rule">
+      <field name="name">Matrice fournisseur - Finance</field>
+      <field name="model_id" ref="model_purchase_request_matrix_supplier"/>
+      <field name="domain_force">[(1, '=', 1)]</field>
+      <field name="groups" eval="[(4, ref('demande_d_achat.groupe_finance'))]"/>
+  </record>
+  <record id="rule_matrix_supplier_directeur" model="ir.rule">
+      <field name="name">Matrice fournisseur - Directeur</field>
+      <field name="model_id" ref="model_purchase_request_matrix_supplier"/>
+      <field name="domain_force">[(1, '=', 1)]</field>
+      <field name="groups" eval="[(4, ref('demande_d_achat.groupe_directeur'))]"/>
+  </record>
+  <record id="rule_matrix_supplier_admin" model="ir.rule">
+      <field name="name">Matrice fournisseur - Admin</field>
+      <field name="model_id" ref="model_purchase_request_matrix_supplier"/>
+      <field name="domain_force">[(1, '=', 1)]</field>
+      <field name="groups" eval="[(4, ref('demande_d_achat.admin'))]"/>
+  </record>
 </odoo>

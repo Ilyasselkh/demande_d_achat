@@ -21,7 +21,7 @@
         <field name="name">purchase.request.stats.form</field>
         <field name="model">purchase.request.stats</field>
         <field name="arch" type="xml">
-            <form string="Statistiques des Demandes d'Achat" create="false" edit="false">
+            <form string="Statistiques des Demandes d'Achat" create="false" edit="false" class="o_ar_modern_form o_ar_stats_form">
                 <sheet>
                     <group string="Résumé">
                         <field name="total_requests" readonly="1"/>

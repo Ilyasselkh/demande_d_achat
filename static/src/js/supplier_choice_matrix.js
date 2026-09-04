@@ -2,6 +2,7 @@
 
 import { Component, onWillStart, useState } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
+import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
@@ -14,6 +15,7 @@ export class SupplierChoiceMatrixDialog extends Component {
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
+        this.dialog = useService("dialog");
         this.notification = useService("notification");
         this.state = useState({ loading: true, data: null });
         onWillStart(() => this.load());
@@ -61,6 +63,34 @@ export class SupplierChoiceMatrixDialog extends Component {
         await this._save("update_supplier_matrix_evaluation", [
             evaluation.id, { applicable: !event.target.checked },
         ]);
+    }
+
+    async addSupplier() {
+        await this._save("add_supplier_matrix_supplier", []);
+    }
+
+    async removeSupplier(supplier, confirmed = false) {
+        try {
+            const result = await this.orm.call(
+                "purchase.request",
+                "remove_supplier_matrix_supplier",
+                [[this.props.requestId], supplier.id, confirmed]
+            );
+            if (result.confirmation_required) {
+                this.dialog.add(ConfirmationDialog, {
+                    title: "Supprimer le fournisseur",
+                    body: `Les notes et commentaires de ${result.supplier_name} seront supprimés. Continuer ?`,
+                    confirm: () => this.removeSupplier(supplier, true),
+                    confirmLabel: "Supprimer",
+                    cancelLabel: "Annuler",
+                });
+                return;
+            }
+            this.state.data = result;
+        } catch (error) {
+            this.notification.add(error.data?.message || error.message, { type: "danger" });
+            await this.load();
+        }
     }
 
     async downloadMatrix() {

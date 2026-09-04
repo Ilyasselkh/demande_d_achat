@@ -22,7 +22,7 @@
         <field name="name">manager.centre.cout.tree</field>
         <field name="model">manager.centre.cout</field>
         <field name="arch" type="xml">
-            <list editable="bottom">
+            <list editable="bottom" class="o_ar_modern_list">
                 <field name="name"/>
                 <field name="description"/>
                 <field name="manager_ids" widget="many2many_tags"/>
@@ -36,7 +36,7 @@
         <field name="name">manager.centre.cout.tree.simple</field>
         <field name="model">manager.centre.cout</field>
         <field name="arch" type="xml">
-            <list>
+            <list class="o_ar_modern_list">
                 <field name="name"/>
                 <field name="description"/>
             </list>
@@ -49,7 +49,7 @@
         <field name="name">manager.centre.cout.form</field>
         <field name="model">manager.centre.cout</field>
         <field name="arch" type="xml">
-            <form string="Manager du Centre de Coût">
+            <form string="Manager du Centre de Coût" class="o_ar_modern_form">
                 <sheet>
                     <group>
                         <field name="name"/>

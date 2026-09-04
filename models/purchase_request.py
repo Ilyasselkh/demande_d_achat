@@ -233,47 +233,36 @@ class PurchaseRequest(models.Model):
         for record in self:
             if record.state != 'buyer':
                 continue
+            if record.supplier_category == 'other_non_strategic':
+                pairs = [
+                    ("A", record.buyer_fournisseur_a_name, record.devis_A),
+                    ("B", record.buyer_fournisseur_b_name, record.devis_B),
+                    ("C", record.buyer_fournisseur_c_name, record.devis_C),
+                ]
+                valid_pairs = [
+                    pair for pair in pairs
+                    if pair[1] and pair[1].strip() and pair[2]
+                ]
+                if not valid_pairs:
+                    raise ValidationError("Veuillez renseigner au moins un fournisseur avec son devis.")
+                continue
 
-        missing = []
-
-        # Paires (Nom fournisseur + Devis)
-        pairs = [
-            ("A", record.buyer_fournisseur_a_name, record.devis_A),
-            ("B", record.buyer_fournisseur_b_name, record.devis_B),
-            ("C", record.buyer_fournisseur_c_name, record.devis_C),
-        ]
-
-        def pair_ok(name, devis):
-            return bool(name and name.strip()) and bool(devis) and len(devis) > 0
-
-        valid_pairs = [p for p in pairs if pair_ok(p[1], p[2])]
-        valid_count = len(valid_pairs)
-
-        #  Nombre requis selon le mode d’affichage (plus fiable)
-        mode = record.buyer_display_mode  # one / two / three
-        required = 1 if mode == "one" else 2 if mode == "two" else 3
-
-        # Pour forcer 2 fournisseurs quand dérogation (cas montant >= 20001 et dérogation)
-        # buyer_display_mode gérer ça, OU on force explicitement :
-        # if record.devis_requirement_level == "three" and record.exceptional_validation:
-        #     required = 2
-
-        # Messages précis pour incohérences
-        for letter, fname, fdevis in pairs:
-            if fdevis and len(fdevis) > 0 and not (fname and fname.strip()):
-                missing.append(f"- Devis {letter} fourni mais Fournisseur {letter} vide")
-            if (fname and fname.strip()) and (not fdevis or len(fdevis) == 0):
-                missing.append(f"- Fournisseur {letter} renseigné mais Devis {letter} manquant")
-
-        if valid_count < required:
-            missing.insert(0, f"- Vous devez fournir {required} fournisseur(s) avec leurs devis (actuellement: {valid_count}/{required})")
-
-        if missing:
-            raise ValidationError(
-                "Soumission impossible (étape Achat).\n\n"
-                "Veuillez compléter les champs nécessaires :\n\n"
-                + "\n".join(missing)
-            )
+            matrix_request = record.sudo()
+            matrix_request._ensure_supplier_matrix()
+            suppliers = matrix_request.matrix_supplier_ids.sorted('sequence')
+            missing = []
+            for supplier in suppliers:
+                label = supplier.name or f"Fournisseur {supplier.sequence}"
+                if not supplier.name or not supplier.name.strip():
+                    missing.append(f"- Le nom du fournisseur {supplier.sequence} est vide")
+                if not supplier.quotation_ids:
+                    missing.append(f"- Le devis de {label} est manquant")
+            if missing:
+                raise ValidationError(
+                    "Soumission impossible (étape Achat).\n\n"
+                    "Veuillez compléter les fournisseurs dynamiques :\n\n"
+                    + "\n".join(missing)
+                )
         
     # Etat manager n+1
             # Bouton approuver
@@ -492,7 +481,10 @@ class PurchaseRequest(models.Model):
             record._check_buyer_suppliers_devis()
 
             level = record.devis_requirement_level
-            devis_count = len(record.devis_A) + len(record.devis_B) + len(record.devis_C)
+            if record.supplier_category == 'other_non_strategic':
+                devis_count = len(record.devis_A) + len(record.devis_B) + len(record.devis_C)
+            else:
+                devis_count = sum(len(supplier.quotation_ids) for supplier in record.sudo().matrix_supplier_ids)
 
             # Si la procédure accepte 1 seul devis, on n'affiche plus l'erreur "two devis requis"
             if record.form_option in ('ac', 'b2c'):
@@ -893,43 +885,6 @@ class PurchaseRequest(models.Model):
                     raise ValidationError(message)
                 elif record.state == 'buyer':
                     record._check_buyer_suppliers_devis()
-                    # Regrouper les champs fournisseurs et devis
-                    fournisseurs = [
-                        record.buyer_fournisseur_a_name,
-                        record.buyer_fournisseur_b_name,
-                        record.buyer_fournisseur_c_name,
-                    ]
-                    devis = [
-                        record.devis_A,
-                        record.devis_B,
-                        record.devis_C,
-                    ]
-
-                    devis_fournisseurs = list(zip(devis, fournisseurs))
-
-                    def _pair_ok(d, f):
-                        return bool(f and f.strip()) and bool(d) and len(d) > 0
-
-                    valid_count = sum(1 for d, f in devis_fournisseurs if _pair_ok(d, f))
-
-                    # Base requirement selon niveau
-                    required = 1 if record.devis_requirement_level == 'one' else 2 if record.devis_requirement_level == 'two' else 3
-
-                    # Cas dérogation : level three mais moins de 3 devis à l'étape Devis
-                    if record.devis_requirement_level == 'three':
-                        devis_count_devis_step = len(record.devis_attachment_ids or [])
-                        if record.exceptional_validation and devis_count_devis_step in (1, 2):
-                            required = devis_count_devis_step   # ou mets "2" si tu veux forcer à 2
-
-                    if valid_count < required:
-                        raise ValidationError(f"Veuillez fournir {required} devis avec leurs fournisseurs correspondants.")
-
-                    # Messages précis si incohérence
-                    for i, (d, f) in enumerate(devis_fournisseurs):
-                        if d and len(d) > 0 and not (f and f.strip()):
-                            raise ValidationError(f"Le devis {['A','B','C'][i]} est fourni sans nom de fournisseur.")
-                        if (f and f.strip()) and (not d or len(d) == 0):
-                            raise ValidationError(f"Le fournisseur {['A','B','C'][i]} est indiqué sans devis.")
             
             elif record.state == 'accompagnement':
                 if not record.form_option:
