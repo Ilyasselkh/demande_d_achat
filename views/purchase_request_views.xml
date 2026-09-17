@@ -6,7 +6,8 @@
     <field name="arch" type="xml">
       <form string="Demande d'achat" create="1" edit="1" duplicate="false" class="o_purchase_request_full_width">
         <header>
-          <field name="state" widget="statusbar" statusbar_visible="draft,first_manager,devis,buyer,accompagnement,second_manager,finance_validation,general_director,approved,reception,archives,rejected"/>
+          <field name="state" widget="statusbar" invisible="budget_type == 'capex'" statusbar_visible="draft,first_manager,devis,buyer,accompagnement,second_manager,finance_validation,general_director,approved,reception,archives,rejected"/>
+          <field name="state" widget="statusbar" invisible="budget_type != 'capex'" statusbar_visible="draft,first_manager,capex_validation,devis,buyer,accompagnement,second_manager,finance_validation,general_director,approved,reception,archives,rejected"/>
         </header>
 
         <sheet>
@@ -28,6 +29,9 @@
           <field name="can_edit_need_section" invisible="1"/>
           <field name="can_submit_request" invisible="1"/>
           <field name="can_first_approve" invisible="1"/>
+          <field name="can_capex_approve" invisible="1"/>
+          <field name="capex_current_year" invisible="1"/>
+          <field name="capex_company_id" invisible="1"/>
           <field name="can_submit_devis" invisible="1"/>
           <field name="can_buyer_submit" invisible="1"/>
           <field name="can_second_approve" invisible="1"/>
@@ -53,6 +57,13 @@
                 <field name="date_created" readonly="1"/>
                 <field name="description" placeholder="Veuillez entrer une description" readonly="not can_edit_need_section"/>
                 <field name="supplier_category" required="1" readonly="not can_edit_need_section"/>
+                <field name="budget_type" widget="radio" options="{'horizontal': True}" readonly="not can_edit_need_section"/>
+                <field name="capex_line_id" invisible="budget_type != 'capex'" required="budget_type == 'capex'"
+                       readonly="not can_edit_need_section"
+                       domain="[('budget_id.year', '=', capex_current_year), ('company_id', '=', capex_company_id)]"
+                       options="{'no_create': True, 'no_open': True}"/>
+                <field name="capex_owner_id" invisible="budget_type != 'capex'"/>
+                <field name="date_capex_approved" invisible="budget_type != 'capex' or not date_capex_approved"/>
               </group>
 
               <separator colspan="4"/>
@@ -222,6 +233,10 @@
               <group invisible="not can_submit_devis">
                 <button name="action_submit_devis" string="Soumettre" type="object" class="btn btn-primary"/>
               </group>
+              <group string="Validation CAPEX" invisible="not can_capex_approve">
+                <button name="action_capex_approve" type="object" string="Valider le CAPEX" class="oe_highlight"/>
+                <button name="action_capex_reject" type="object" string="Rejeter"/>
+              </group>
 
               <group invisible="not can_buyer_submit">
                 <button name="action_buyer_submit" type="object" string="Soumettre" class="oe_highlight"/>
@@ -313,6 +328,6 @@
 
   <!-- Menus -->
   <menuitem id="menu_purchase_request_root" name="AR Demande d'achat"/>
-  <menuitem id="menu_purchase_request_initiateur" name="Les Demandes" parent="demande_d_achat.menu_purchase_request_root" action="demande_d_achat.action_purchase_request_initiateur"/>
+  <menuitem id="menu_purchase_request_initiateur" name="Les Demandes" parent="demande_d_achat.menu_purchase_request_root" action="demande_d_achat.action_purchase_request_initiateur" sequence="1"/>
   <menuitem id="menu_purchase_request_archives" name="Archives" parent="menu_purchase_request_root" action="action_purchase_request_archives" sequence="100"/>
 </odoo>

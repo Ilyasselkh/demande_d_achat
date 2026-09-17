@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class ResUsers(models.Model):
@@ -7,6 +7,7 @@ class ResUsers(models.Model):
     @property
     def SELF_READABLE_FIELDS(self):
         return super().SELF_READABLE_FIELDS + [
+            "da_group_capex",
             "da_group_initiateur",
             "da_group_manager",
             "da_group_acheteur",
@@ -63,6 +64,22 @@ class ResUsers(models.Model):
         compute="_compute_da_groups",
         inverse="_inverse_da_group_admin",
     )
+
+    da_group_capex = fields.Boolean(
+        string="CAPEX",
+        compute="_compute_da_group_capex",
+        inverse="_inverse_da_group_capex",
+        help="Afficher le menu CAPEX. Les droits sur les données restent définis par les rôles Demande d'achat.",
+    )
+
+    @api.depends("group_ids")
+    def _compute_da_group_capex(self):
+        group = self._get_da_group("groupe_capex")
+        for user in self:
+            user.da_group_capex = bool(group and group in user.group_ids)
+
+    def _inverse_da_group_capex(self):
+        self._inverse_da_group("da_group_capex", "groupe_capex")
 
     def _get_da_group(self, xmlid):
         return self.env.ref(f"demande_d_achat.{xmlid}", raise_if_not_found=False)

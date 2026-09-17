@@ -1,3 +1,23 @@
+/* Annual CAPEX needs the available width for its twelve monthly columns. */
+.o_form_view.o_capex_full_width .o_form_sheet_bg {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
+
+.o_form_view.o_capex_full_width .o_form_sheet_bg > .o_form_sheet {
+    width: calc(100% - 32px);
+    max-width: none;
+    min-width: 0;
+    margin-left: 16px;
+    margin-right: 16px;
+}
+
+.o_form_view.o_capex_full_width .o_field_one2many {
+    width: 100%;
+    min-width: 0;
+}
+
 .o_form_view.o_purchase_request_full_width .o_form_sheet_bg {
     width: 100%;
     max-width: none;

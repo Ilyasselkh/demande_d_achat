@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="view_capex_budget_list" model="ir.ui.view">
+    <field name="name">capex.budget.list</field>
+    <field name="model">capex.budget</field>
+    <field name="arch" type="xml">
+      <list string="CAPEX annuels" class="o_ar_modern_list">
+        <field name="name"/>
+        <field name="year" widget="integer" options="{'format': False}"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+        <field name="currency_id" column_invisible="True"/>
+        <field name="total"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_capex_budget_form" model="ir.ui.view">
+    <field name="name">capex.budget.form</field>
+    <field name="model">capex.budget</field>
+    <field name="arch" type="xml">
+      <form string="CAPEX annuel" class="o_capex_full_width">
+        <sheet>
+          <field name="currency_id" invisible="True"/>
+          <div class="o_capex_header">
+            <div class="o_capex_heading">
+              <span class="o_capex_eyebrow">PLAN D’INVESTISSEMENT</span>
+              <h1><field name="name"/></h1>
+              <p>Planifiez les investissements de votre équipe, mois par mois.</p>
+              <div class="o_capex_metadata">
+                <div><label for="year"/><field name="year" options="{'format': False}" readonly="line_ids"/></div>
+                <div groups="base.group_multi_company"><label for="company_id"/><field name="company_id" readonly="line_ids"/></div>
+              </div>
+            </div>
+            <div class="o_capex_budget_card">
+              <span class="o_capex_eyebrow">BUDGET ANNUEL</span>
+              <field name="total" class="o_capex_budget_amount"/>
+              <span class="o_capex_budget_hint">Total des prévisions sur les 12 mois</span>
+            </div>
+          </div>
+          <div class="o_capex_section_heading">
+            <h2>Investissements prévus</h2>
+            <p>Une ligne par investissement, une contribution par utilisateur.</p>
+          </div>
+          <div class="o_capex_table">
+          <field name="line_ids">
+            <list editable="bottom" string="Prévisions mensuelles">
+              <field name="can_edit" column_invisible="True"/>
+              <field name="currency_id" column_invisible="True"/>
+              <field name="user_id" options="{'no_open': True}"/>
+              <field name="description" readonly="not can_edit"/>
+              <field name="jan" sum="Total janvier" readonly="not can_edit"/>
+              <field name="feb" sum="Total février" readonly="not can_edit"/>
+              <field name="mar" sum="Total mars" readonly="not can_edit"/>
+              <field name="apr" sum="Total avril" readonly="not can_edit"/>
+              <field name="may" sum="Total mai" readonly="not can_edit"/>
+              <field name="jun" sum="Total juin" readonly="not can_edit"/>
+              <field name="jul" sum="Total juillet" readonly="not can_edit"/>
+              <field name="aug" sum="Total août" readonly="not can_edit"/>
+              <field name="sep" sum="Total septembre" readonly="not can_edit"/>
+              <field name="oct" sum="Total octobre" readonly="not can_edit"/>
+              <field name="nov" sum="Total novembre" readonly="not can_edit"/>
+              <field name="dec" sum="Total décembre" readonly="not can_edit"/>
+              <field name="total" sum="Total annuel"/>
+            </list>
+          </field>
+          </div>
+          <div class="o_capex_section_heading">
+            <h2>Répartition mensuelle</h2>
+            <p>Montants cumulés de toutes les lignes du CAPEX.</p>
+          </div>
+          <div class="o_capex_months">
+            <div class="o_capex_month"><span>Janvier</span><field name="total_jan"/></div>
+            <div class="o_capex_month"><span>Février</span><field name="total_feb"/></div>
+            <div class="o_capex_month"><span>Mars</span><field name="total_mar"/></div>
+            <div class="o_capex_month"><span>Avril</span><field name="total_apr"/></div>
+            <div class="o_capex_month"><span>Mai</span><field name="total_may"/></div>
+            <div class="o_capex_month"><span>Juin</span><field name="total_jun"/></div>
+            <div class="o_capex_month"><span>Juillet</span><field name="total_jul"/></div>
+            <div class="o_capex_month"><span>Août</span><field name="total_aug"/></div>
+            <div class="o_capex_month"><span>Septembre</span><field name="total_sep"/></div>
+            <div class="o_capex_month"><span>Octobre</span><field name="total_oct"/></div>
+            <div class="o_capex_month"><span>Novembre</span><field name="total_nov"/></div>
+            <div class="o_capex_month"><span>Décembre</span><field name="total_dec"/></div>
+          </div>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="action_purchase_request_capex" model="ir.actions.act_window">
+    <field name="name">CAPEX</field>
+    <field name="res_model">capex.budget</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[]</field>
+    <field name="context">{}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Créez le CAPEX de l'année</p>
+      <p>Chaque utilisateur peut ajouter ses lignes et répartir les montants prévus sur les 12 mois.</p>
+    </field>
+  </record>
+  <menuitem id="menu_purchase_request_capex" name="CAPEX" parent="menu_purchase_request_root"
+            action="action_purchase_request_capex" sequence="2" groups="demande_d_achat.groupe_capex"/>
+</odoo>

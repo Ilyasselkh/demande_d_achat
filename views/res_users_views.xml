@@ -15,6 +15,7 @@
             <field name="da_group_finance"/>
             <field name="da_group_directeur"/>
             <field name="da_group_admin"/>
+            <field name="da_group_capex"/>
           </group>
         </group>
       </xpath>

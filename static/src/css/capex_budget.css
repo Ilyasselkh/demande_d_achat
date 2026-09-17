@@ -1,0 +1,227 @@
+/* Scoped to CAPEX: preserve the layout of other business forms. */
+.o_form_view.o_capex_full_width {
+    --capex-ink: #183247;
+    --capex-muted: #63758a;
+    --capex-border: #dfe7ee;
+    --capex-accent: #176b87;
+    background: #f3f6fa;
+}
+
+.o_form_view.o_capex_full_width .o_form_sheet_bg {
+    padding-top: 16px;
+    padding-bottom: 24px;
+    background: #f3f6fa;
+}
+
+.o_form_view.o_capex_full_width .o_form_sheet_bg > .o_form_sheet {
+    padding: 28px;
+    border: 1px solid var(--capex-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(24, 50, 71, .05);
+}
+
+.o_capex_full_width .o_capex_header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 26px;
+    border-bottom: 1px solid var(--capex-border);
+}
+
+.o_capex_full_width .o_capex_heading {
+    flex: 1 1 400px;
+    min-width: 0;
+}
+
+.o_capex_full_width .o_capex_eyebrow {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    color: var(--capex-accent);
+}
+
+.o_capex_full_width .o_capex_heading h1 {
+    margin: 8px 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--capex-ink);
+}
+
+.o_capex_full_width .o_capex_heading p,
+.o_capex_full_width .o_capex_section_heading p {
+    margin: 0;
+    color: var(--capex-muted);
+    font-size: 13px;
+}
+
+.o_capex_full_width .o_capex_metadata {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 28px;
+    margin-top: 20px;
+}
+
+.o_capex_full_width .o_capex_metadata > div {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.o_capex_full_width .o_capex_metadata label {
+    color: var(--capex-muted);
+    font-size: 12px;
+    margin: 0;
+}
+
+.o_capex_full_width .o_capex_metadata .o_field_widget {
+    width: auto;
+    min-width: 70px;
+    margin-bottom: 0;
+}
+
+.o_capex_full_width .o_capex_budget_card {
+    flex: 0 1 360px;
+    min-width: 0;
+    padding: 22px 26px;
+    border-radius: 12px;
+    background: linear-gradient(120deg, #153c51, #176b87);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+}
+
+.o_capex_full_width .o_capex_budget_card .o_capex_eyebrow,
+.o_capex_full_width .o_capex_budget_hint {
+    color: #d6eaf2;
+}
+
+.o_capex_full_width .o_capex_budget_amount {
+    font-size: 30px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.o_capex_full_width .o_capex_budget_hint {
+    font-size: 12px;
+}
+
+.o_capex_full_width .o_capex_section_heading {
+    margin: 26px 0 14px;
+}
+
+.o_capex_full_width .o_capex_section_heading h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--capex-ink);
+    margin: 0 0 5px;
+}
+
+.o_capex_full_width .o_capex_table {
+    border: 1px solid var(--capex-border);
+    border-radius: 10px;
+    padding: 1px;
+    min-width: 0;
+}
+
+.o_capex_full_width .o_capex_table .o_list_table thead th {
+    background: #edf3f7;
+    color: var(--capex-ink);
+    font-size: 12px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--capex-border);
+}
+
+.o_capex_full_width .o_capex_table .o_list_table td {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    vertical-align: middle;
+    font-variant-numeric: tabular-nums;
+}
+
+.o_capex_full_width .o_capex_table .o_data_row:nth-child(even):not(.o_selected_row) > td {
+    background-color: #f8fafc;
+}
+
+.o_capex_full_width .o_capex_table .o_data_row:hover:not(.o_selected_row) > td {
+    background-color: #eef6fa;
+}
+
+.o_capex_full_width .o_capex_table th[data-name="description"],
+.o_capex_full_width .o_capex_table td[name="description"] {
+    min-width: 220px;
+}
+
+.o_capex_full_width .o_capex_table td[name="description"] {
+    white-space: normal;
+}
+
+.o_capex_full_width .o_capex_table td[name="total"],
+.o_capex_full_width .o_capex_table .o_list_table tfoot td {
+    font-weight: 700;
+    color: var(--capex-accent);
+    background-color: #edf6f8;
+}
+
+.o_capex_full_width .o_capex_table .o_field_x2many_list_row_add a {
+    color: var(--capex-accent);
+    font-weight: 600;
+}
+
+.o_capex_full_width .o_capex_months {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.o_capex_full_width .o_capex_month {
+    padding: 16px 18px;
+    border: 1px solid var(--capex-border);
+    border-radius: 10px;
+    background: #f8fafc;
+    min-width: 0;
+}
+
+.o_capex_full_width .o_capex_month > span {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--capex-muted);
+}
+
+.o_capex_full_width .o_capex_month .o_field_widget {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--capex-ink);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 1199px) {
+    .o_capex_full_width .o_capex_months {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767px) {
+    .o_form_view.o_capex_full_width .o_form_sheet_bg > .o_form_sheet {
+        padding: 18px 14px;
+        width: calc(100% - 16px);
+        margin-left: 8px;
+        margin-right: 8px;
+    }
+    .o_capex_full_width .o_capex_budget_card {
+        flex-basis: 100%;
+    }
+    .o_capex_full_width .o_capex_months {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

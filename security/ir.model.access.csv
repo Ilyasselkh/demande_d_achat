@@ -1,4 +1,18 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_capex_budget_groupe_initiateur,CAPEX groupe_initiateur,model_capex_budget,demande_d_achat.groupe_initiateur,1,1,1,0
+access_capex_line_groupe_initiateur,Lignes CAPEX groupe_initiateur,model_capex_budget_line,demande_d_achat.groupe_initiateur,1,1,1,1
+access_capex_budget_groupe_manager,CAPEX groupe_manager,model_capex_budget,demande_d_achat.groupe_manager,1,1,1,0
+access_capex_line_groupe_manager,Lignes CAPEX groupe_manager,model_capex_budget_line,demande_d_achat.groupe_manager,1,1,1,1
+access_capex_budget_groupe_acheteur,CAPEX groupe_acheteur,model_capex_budget,demande_d_achat.groupe_acheteur,1,1,1,0
+access_capex_line_groupe_acheteur,Lignes CAPEX groupe_acheteur,model_capex_budget_line,demande_d_achat.groupe_acheteur,1,1,1,1
+access_capex_budget_groupe_managercc,CAPEX groupe_managercc,model_capex_budget,demande_d_achat.groupe_managercc,1,1,1,0
+access_capex_line_groupe_managercc,Lignes CAPEX groupe_managercc,model_capex_budget_line,demande_d_achat.groupe_managercc,1,1,1,1
+access_capex_budget_groupe_finance,CAPEX groupe_finance,model_capex_budget,demande_d_achat.groupe_finance,1,1,1,0
+access_capex_line_groupe_finance,Lignes CAPEX groupe_finance,model_capex_budget_line,demande_d_achat.groupe_finance,1,1,1,1
+access_capex_budget_groupe_directeur,CAPEX groupe_directeur,model_capex_budget,demande_d_achat.groupe_directeur,1,1,1,0
+access_capex_line_groupe_directeur,Lignes CAPEX groupe_directeur,model_capex_budget_line,demande_d_achat.groupe_directeur,1,1,1,1
+access_capex_budget_admin,CAPEX admin,model_capex_budget,demande_d_achat.admin,1,1,1,1
+access_capex_line_admin,Lignes CAPEX admin,model_capex_budget_line,demande_d_achat.admin,1,1,1,1
 access_purchase_request_initiateur,access_purchase_request_initiateur,demande_d_achat.model_purchase_request,demande_d_achat.groupe_initiateur,1,1,1,0
 access_purchase_request_manager1,purchase.request manager1 access,demande_d_achat.model_purchase_request,demande_d_achat.groupe_manager,1,1,1,0
 access_purchase_request_acheteur,purchase.request acheteur access,demande_d_achat.model_purchase_request,demande_d_achat.groupe_acheteur,1,1,1,0

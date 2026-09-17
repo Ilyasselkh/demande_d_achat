@@ -12,6 +12,7 @@ class PurchaseRequest(models.Model):
     # Etats de la demande 
     STATES = [('draft', 'Expression de besoin'),
               ('first_manager', 'Validation Manager n+1'),
+              ('capex_validation', 'Validation CAPEX'),
               ('devis','Devis'),('buyer', 'Achat'),
               ('accompagnement', "Formulaire d'accompagnement"),
               ('second_manager', 'Validation Manager CC'),
@@ -268,6 +269,8 @@ class PurchaseRequest(models.Model):
             # Bouton approuver
     def action_first_approve(self):
         for record in self:
+            if record.state != 'first_manager':
+                raise AccessError("La demande doit être en validation Manager N+1.")
             if record.state == "first_manager":
                 if not record.manager_user_id:
                     raise AccessError("Aucun manager N+1 n'est défini pour cette demandeur.")
@@ -275,7 +278,7 @@ class PurchaseRequest(models.Model):
                     raise AccessError("Seul le manager N+1 du demandeur peut approuver cette demande.")
                 
             record._check_required_fields_by_state()
-            record.write({'state': 'devis'})
+            record.write({'state': 'capex_validation' if record.budget_type == 'capex' else 'devis'})
             record.first_approver = self.env.user
             record.date_first_approved = fields.Datetime.now()
         employee = self.env['hr.employee'].search([('user_id', '=', self.env.user.id)], limit=1)
@@ -852,7 +855,7 @@ class PurchaseRequest(models.Model):
                 raise ValidationError("Seul l'initiateur de la demande peut la modifier.")
              # Vérifier si la demande était dans un état de validation avant de revenir à 'draft'
             # (Exclut 'draft', 'rejected', 'archives' car ce ne sont pas des états "validés" pour cette statistique)
-            validation_states = ['first_manager', 'devis', 'buyer', 'accompagnement', 'second_manager', 'finance_validation', 'general_director', 'approved', 'reception']
+            validation_states = ['first_manager', 'capex_validation', 'devis', 'buyer', 'accompagnement', 'second_manager', 'finance_validation', 'general_director', 'approved', 'reception']
             if rec.state in validation_states:
                 # AJOUTEZ CES DEUX LIGNES :
                 rec.modified_after_validation = True

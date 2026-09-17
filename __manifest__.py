@@ -10,9 +10,11 @@
     'depends': ['base', 'mail', 'hr', 'account'], 
     'data': [
         'security/security.xml',
+        'security/capex_security.xml',
         'security/ir.model.access.csv',
         'data/purchase_request_sequence.xml',
         'views/purchase_request_views.xml',
+        'views/capex_budget_views.xml',
         'views/manager_centre_cout_views.xml',
         'views/purchase_request_stats_views.xml',
         'views/documentation_views.xml',
@@ -26,6 +28,7 @@
     'assets': {
         'web.assets_backend': [
             'demande_d_achat/static/src/css/purchase_request_form.css',
+            'demande_d_achat/static/src/css/capex_budget.css',
             'demande_d_achat/static/src/js/purchase_request_stats.js',
             'demande_d_achat/static/src/js/supplier_choice_matrix.js',
             'demande_d_achat/static/src/xml/supplier_choice_matrix.xml',

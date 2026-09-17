@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="rule_purchase_request_capex_owner" model="ir.rule">
+    <field name="name">DA : consultation par le responsable CAPEX</field>
+    <field name="model_id" ref="model_purchase_request"/>
+    <field name="domain_force">[('budget_type', '=', 'capex'), ('capex_owner_id', '=', user.id), ('state', '!=', 'draft')]</field>
+    <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    <field name="perm_read" eval="True"/>
+    <field name="perm_write" eval="False"/>
+    <field name="perm_create" eval="False"/>
+    <field name="perm_unlink" eval="False"/>
+  </record>
+  <!-- Menu visibility only: model access remains tied to the existing DA roles. -->
+  <record id="groupe_capex" model="res.groups">
+    <field name="name">CAPEX</field>
+    <field name="privilege_id" eval="False"/>
+    <field name="sequence">80</field>
+  </record>
+  <record id="rule_capex_budget_company" model="ir.rule">
+    <field name="name">CAPEX : sociétés autorisées</field>
+    <field name="model_id" ref="model_capex_budget"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_capex_line_company" model="ir.rule">
+    <field name="name">Lignes CAPEX : sociétés autorisées</field>
+    <field name="model_id" ref="model_capex_budget_line"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_capex_line_own_changes" model="ir.rule">
+    <field name="name">CAPEX : modifier uniquement ses propres lignes</field>
+    <field name="model_id" ref="model_capex_budget_line"/>
+    <field name="domain_force">[('user_id', '=', user.id)]</field>
+    <field name="perm_read" eval="False"/>
+    <field name="perm_write" eval="True"/>
+    <field name="perm_create" eval="True"/>
+    <field name="perm_unlink" eval="True"/>
+  </record>
+</odoo>

@@ -4,3 +4,5 @@ from . import purchase_request_stats
 from . import documentation
 from . import res_users
 from . import supplier_choice_matrix
+from . import capex_budget
+from . import purchase_request_capex
