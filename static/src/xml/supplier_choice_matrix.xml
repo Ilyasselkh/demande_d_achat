@@ -12,6 +12,7 @@
     <t t-name="demande_d_achat.SupplierChoiceMatrixDialog">
         <Dialog title="'Matrice de choix fournisseurs'"
             size="'xl'"
+            onDismiss.bind="confirmClose"
             contentClass="'o_supplier_matrix_dialog'">
                 <div t-if="state.loading" class="text-muted text-center py-5">
                     <i class="fa fa-spinner fa-spin me-1"/> Chargement de la matrice…
@@ -43,6 +44,29 @@
                         <i class="fa fa-plus me-1"/> Ajouter un fournisseur
                     </button>
                 </div>
+                <section class="o_matrix_derogation" aria-label="Mode dérogation">
+                    <div class="o_matrix_derogation_heading">
+                        <i class="fa fa-exclamation-circle" aria-hidden="true"/>
+                        <strong>Dérogation</strong>
+                    </div>
+                    <p class="o_matrix_derogation_note">
+                        <strong>N.B :</strong> En cas de dérogation, veuillez cocher le mode dérogation et mentionner le motif.
+                    </p>
+                    <label class="o_matrix_derogation_toggle">
+                        <input type="checkbox" class="form-check-input"
+                            t-att-checked="state.data.derogation_mode"
+                            t-att-disabled="!state.data.editable"
+                            t-on-change="updateDerogationMode"/>
+                        <span>Mode dérogation</span>
+                    </label>
+                    <div t-if="state.data.derogation_mode" class="o_matrix_derogation_reason">
+                        <label class="form-label" for="o_matrix_derogation_reason">Motif de la dérogation <span class="text-danger">*</span></label>
+                        <textarea id="o_matrix_derogation_reason" class="form-control" rows="2"
+                            t-att-value="state.data.derogation_reason"
+                            t-att-disabled="!state.data.editable"
+                            t-on-input="updateDerogationReason"/>
+                    </div>
+                </section>
                 <div class="table-responsive o_matrix_table_shell">
                     <table class="table table-bordered o_matrix_table">
                         <thead>
@@ -66,13 +90,29 @@
                                                 t-att-value="supplier.name"
                                                 t-att-placeholder="'Fournisseur ' + supplier.sequence"
                                                 t-att-disabled="!state.data.editable"
-                                                t-on-blur="(event) => this.updateSupplierName(supplier, event)"/>
+                                                t-on-input="(event) => this.updateSupplierName(supplier, event)"/>
                                             <button t-if="state.data.editable and state.data.suppliers.length &gt; 1"
                                                 type="button" class="btn btn-sm btn-outline-danger"
                                                 title="Supprimer ce fournisseur"
                                                 t-on-click="() => this.removeSupplier(supplier)">
                                                 <i class="fa fa-trash"/>
                                             </button>
+                                        </div>
+                                        <div class="o_matrix_quotations">
+                                            <small>Devis</small>
+                                            <div t-foreach="supplier.quotations" t-as="attachment" t-key="attachment.id || attachment.key" class="o_matrix_quotation">
+                                                <a t-if="attachment.id" t-att-href="'/web/content/' + attachment.id + '?download=1'" t-esc="attachment.name"/>
+                                                <span t-else="" t-esc="attachment.name + ' (à enregistrer)'"/>
+                                                <button t-if="state.data.editable" type="button" class="btn btn-sm btn-link text-danger"
+                                                    title="Désaffecter ce devis" t-on-click="() => this.removeQuotation(supplier, attachment)">
+                                                    <i class="fa fa-times"/>
+                                                </button>
+                                            </div>
+                                            <label t-if="state.data.editable" class="btn btn-sm btn-outline-primary mt-1">
+                                                <i class="fa fa-paperclip me-1"/> Ajouter un devis
+                                                <input type="file" multiple="multiple" class="d-none"
+                                                    t-on-change="(event) => this.uploadQuotation(supplier, event)"/>
+                                            </label>
                                         </div>
                                     </th>
                                 </t>
@@ -92,7 +132,7 @@
                                         <input type="number" min="0" max="5" step="0.5" class="form-control"
                                             t-att-value="evaluation.score_set ? evaluation.score : ''"
                                             t-att-disabled="!state.data.editable || !evaluation.applicable"
-                                            t-on-change="(event) => this.updateScore(evaluation, event)"/>
+                                            t-on-input="(event) => this.updateScore(evaluation, event)"/>
                                         <label class="o_matrix_na_toggle">
                                             <input type="checkbox" t-att-checked="!evaluation.applicable"
                                                 t-att-disabled="!state.data.editable"
@@ -107,7 +147,7 @@
                                         <textarea class="form-control" rows="2"
                                             t-att-disabled="!state.data.editable"
                                             t-att-value="evaluation.comment"
-                                            t-on-blur="(event) => this.updateComment(evaluation, event)"/>
+                                            t-on-input="(event) => this.updateComment(evaluation, event)"/>
                                     </td>
                                 </t>
                             </tr>
@@ -128,11 +168,16 @@
                 </small>
                 </t>
                 <t t-set-slot="footer">
+                    <button t-if="state.data and state.data.editable" type="button" class="btn btn-success"
+                        t-on-click="saveMatrix" t-att-disabled="!state.dirty || state.saving || state.readingFiles">
+                        <i t-att-class="state.saving ? 'fa fa-spinner fa-spin me-1' : 'fa fa-save me-1'"/>
+                        <t t-esc="state.saving ? 'Enregistrement…' : 'Enregistrer'"/>
+                    </button>
                     <button type="button" class="btn btn-primary" t-on-click="downloadMatrix"
-                        t-att-disabled="state.loading">
+                        t-att-disabled="state.loading || state.saving || state.readingFiles || state.dirty">
                         <i class="fa fa-download me-1"/> Télécharger PDF
                     </button>
-                    <button type="button" class="btn btn-secondary" t-on-click="props.close">Fermer</button>
+                    <button type="button" class="btn btn-secondary" t-on-click="closeMatrix">Fermer</button>
                 </t>
         </Dialog>
     </t>

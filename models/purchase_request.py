@@ -13,7 +13,9 @@ class PurchaseRequest(models.Model):
     STATES = [('draft', 'Expression de besoin'),
               ('first_manager', 'Validation Manager n+1'),
               ('capex_validation', 'Validation CAPEX'),
-              ('devis','Devis'),('buyer', 'Achat'),
+              ('devis','Devis'),
+              ('derogation_manager', 'Validation n+1 dérog'),
+              ('buyer', 'Achat'),
               ('accompagnement', "Formulaire d'accompagnement"),
               ('second_manager', 'Validation Manager CC'),
               ('finance_validation', 'Validation Finance'),
@@ -86,7 +88,7 @@ class PurchaseRequest(models.Model):
         Users = self.env["res.users"]
         actors = Users.browse()
 
-        if new_state == "first_manager":
+        if new_state in ("first_manager", "derogation_manager"):
             if self.manager_user_id:
                 actors |= self.manager_user_id
 
@@ -289,6 +291,15 @@ class PurchaseRequest(models.Model):
     # Etat Devis
             # Pieces jointes 
     devis_attachment_ids = fields.Many2many('ir.attachment','purchase_request_devis_attachment_rel', 'purchase_request_id','attachment_id', string="Pièces jointes", domain="[('res_model', '=', 'purchase.request')]")
+
+    def _devis_count_for_procedure(self):
+        self.ensure_one()
+        if self.supplier_category == 'other_non_strategic':
+            return len(self.devis_attachment_ids)
+        attachment_ids = set()
+        for supplier in self.matrix_supplier_ids:
+            attachment_ids.update(supplier.quotation_ids.ids)
+        return len(attachment_ids)
     
     # modif I
 
@@ -394,10 +405,15 @@ class PurchaseRequest(models.Model):
             record._check_ab1_b2_c_selected_before_submit_devis()
             record._check_required_fields_by_state()
             record._validate_supplier_matrix()
+            if record.matrix_derogation_mode:
+                if not (record.matrix_derogation_reason or '').strip():
+                    raise ValidationError("Veuillez renseigner le motif de la dérogation dans la matrice.")
+                if not record.manager_user_id:
+                    raise ValidationError("Aucun manager N+1 n'est défini pour valider la dérogation.")
 
         # Règle spécifique: à partir de 20 001 MAD
             if record.devis_requirement_level == 'three':
-                devis_count = len(record.devis_attachment_ids or [])
+                devis_count = record._devis_count_for_procedure()
 
             # Logique:
             # - si < 3 devis => dérogation obligatoire
@@ -409,8 +425,21 @@ class PurchaseRequest(models.Model):
                 )
 
         # Passage à l'état Achat
-            record.sudo().write({'state': 'buyer'})
+            record.sudo().write({
+                'state': 'derogation_manager' if record.matrix_derogation_mode else 'buyer'
+            })
 
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
+
+    def action_approve_derogation(self):
+        for record in self:
+            if record.state != 'derogation_manager':
+                raise AccessError("La demande doit être en Validation n+1 dérog.")
+            if not record.manager_user_id or record.manager_user_id.id != self.env.uid:
+                raise AccessError("Seul le manager N+1 du demandeur peut valider cette dérogation.")
+            if not record.matrix_derogation_mode or not (record.matrix_derogation_reason or '').strip():
+                raise ValidationError("Le mode et le motif de la dérogation sont obligatoires.")
+            record.write({'state': 'buyer'})
         return {'type': 'ir.actions.client', 'tag': 'reload'}
     
     
@@ -425,7 +454,7 @@ class PurchaseRequest(models.Model):
     ], compute="_compute_buyer_display_mode", store=False)
 
     # modif I 
-    @api.depends('devis_requirement_level', 'exceptional_validation', 'devis_attachment_ids', 'form_option')
+    @api.depends('devis_requirement_level', 'exceptional_validation', 'devis_attachment_ids', 'matrix_supplier_ids.quotation_ids', 'form_option')
     def _compute_buyer_display_mode(self):
         for rec in self:
 
@@ -438,7 +467,7 @@ class PurchaseRequest(models.Model):
             mode = rec.devis_requirement_level
 
             if rec.devis_requirement_level == 'three':
-                devis_count = len(rec.devis_attachment_ids or [])
+                devis_count = rec._devis_count_for_procedure()
 
                 if rec.exceptional_validation and devis_count in (1, 2):
                     mode = 'two'
@@ -623,7 +652,7 @@ class PurchaseRequest(models.Model):
     #  Calcul du nombre de devis
     # ----------------------------
     # En étape Devis -> on se base sur devis_attachment_ids
-        devis_valides = len(self.devis_attachment_ids or [])
+        devis_valides = self._devis_count_for_procedure()
 
     # ----------------------------
     #  Règles selon form_option
@@ -855,7 +884,7 @@ class PurchaseRequest(models.Model):
                 raise ValidationError("Seul l'initiateur de la demande peut la modifier.")
              # Vérifier si la demande était dans un état de validation avant de revenir à 'draft'
             # (Exclut 'draft', 'rejected', 'archives' car ce ne sont pas des états "validés" pour cette statistique)
-            validation_states = ['first_manager', 'capex_validation', 'devis', 'buyer', 'accompagnement', 'second_manager', 'finance_validation', 'general_director', 'approved', 'reception']
+            validation_states = ['first_manager', 'capex_validation', 'devis', 'derogation_manager', 'buyer', 'accompagnement', 'second_manager', 'finance_validation', 'general_director', 'approved', 'reception']
             if rec.state in validation_states:
                 # AJOUTEZ CES DEUX LIGNES :
                 rec.modified_after_validation = True
@@ -1034,6 +1063,11 @@ class PurchaseRequest(models.Model):
         compute="_compute_workflow_permissions",
         store=False,
     )
+    can_approve_derogation = fields.Boolean(
+        string="Peut valider la dérogation",
+        compute="_compute_workflow_permissions",
+        store=False,
+    )
     can_submit_devis = fields.Boolean(
         string="Peut soumettre les devis",
         compute="_compute_workflow_permissions",
@@ -1112,6 +1146,7 @@ class PurchaseRequest(models.Model):
             is_initiator_or_buyer = is_initiator or is_buyer_group
 
             rec.can_first_approve = bool(rec.state == 'first_manager' and is_n1_manager)
+            rec.can_approve_derogation = bool(rec.state == 'derogation_manager' and is_n1_manager)
             rec.can_submit_devis = bool(rec.state == 'devis' and is_initiator)
             rec.can_buyer_submit = bool(rec.state == 'buyer' and is_buyer_group)
             rec.can_second_approve = bool(rec.state == 'accompagnement' and is_initiator_or_buyer)

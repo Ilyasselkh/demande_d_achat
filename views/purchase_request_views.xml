@@ -6,8 +6,8 @@
     <field name="arch" type="xml">
       <form string="Demande d'achat" create="1" edit="1" duplicate="false" class="o_purchase_request_full_width">
         <header>
-          <field name="state" widget="statusbar" invisible="budget_type == 'capex'" statusbar_visible="draft,first_manager,devis,buyer,accompagnement,second_manager,finance_validation,general_director,approved,reception,archives,rejected"/>
-          <field name="state" widget="statusbar" invisible="budget_type != 'capex'" statusbar_visible="draft,first_manager,capex_validation,devis,buyer,accompagnement,second_manager,finance_validation,general_director,approved,reception,archives,rejected"/>
+          <field name="state" widget="statusbar" invisible="budget_type == 'capex'" statusbar_visible="draft,first_manager,devis,derogation_manager,buyer,accompagnement,second_manager,finance_validation,general_director,approved,reception,archives,rejected"/>
+          <field name="state" widget="statusbar" invisible="budget_type != 'capex'" statusbar_visible="draft,first_manager,capex_validation,devis,derogation_manager,buyer,accompagnement,second_manager,finance_validation,general_director,approved,reception,archives,rejected"/>
         </header>
 
         <sheet>
@@ -29,6 +29,7 @@
           <field name="can_edit_need_section" invisible="1"/>
           <field name="can_submit_request" invisible="1"/>
           <field name="can_first_approve" invisible="1"/>
+          <field name="can_approve_derogation" invisible="1"/>
           <field name="can_capex_approve" invisible="1"/>
           <field name="capex_current_year" invisible="1"/>
           <field name="capex_company_id" invisible="1"/>
@@ -79,10 +80,11 @@
                   </field>
                 </group>
 
-                <group string="Devis" colspan="4" class="o_ar_subsection" invisible="state not in ['devis','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives','rejected']">
+                <group string="Devis" colspan="4" class="o_ar_subsection" invisible="supplier_category != 'other_non_strategic' or state not in ['devis','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives','rejected']">
                   <separator string="↳ Devis" colspan="1"/>
                   <field name="devis_attachment_ids" widget="many2many_binary" string="Devis" readonly="state != 'devis' or not is_initiator"/>
-
+                </group>
+                <group string="Montant" colspan="4" class="o_ar_subsection" invisible="state not in ['devis','derogation_manager','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives','rejected']">
                   <separator string="↳ Montant" colspan="1"/>
                   <field name="is_buyer" invisible="1"/>
                   <field name="is_initiator_or_buyer" invisible="1"/>
@@ -144,7 +146,7 @@
                 </group>
               </group>
 
-              <group string="↳ Matrice de choix fournisseurs" colspan="4" invisible="supplier_category == 'other_non_strategic' or state not in ['devis','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives']">
+              <group string="↳ Matrice de choix fournisseurs" colspan="4" invisible="supplier_category == 'other_non_strategic' or state not in ['devis','derogation_manager','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives']">
                 <field name="matrix_widget" widget="supplier_choice_matrix" nolabel="1" readonly="state != 'devis' or not is_initiator"/>
               </group>
 
@@ -232,6 +234,10 @@
 
               <group invisible="not can_submit_devis">
                 <button name="action_submit_devis" string="Soumettre" type="object" class="btn btn-primary"/>
+              </group>
+              <group invisible="not can_approve_derogation">
+                <button name="action_approve_derogation" type="object" string="Valider la dérogation" class="oe_highlight"/>
+                <button name="action_reject" type="object" string="Rejeter"/>
               </group>
               <group string="Validation CAPEX" invisible="not can_capex_approve">
                 <button name="action_capex_approve" type="object" string="Valider le CAPEX" class="oe_highlight"/>

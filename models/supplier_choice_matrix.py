@@ -119,6 +119,8 @@ class PurchaseRequestMatrixEvaluation(models.Model):
 class PurchaseRequest(models.Model):
     _inherit = "purchase.request"
 
+    matrix_derogation_mode = fields.Boolean(string="Mode dérogation", tracking=True, copy=False)
+    matrix_derogation_reason = fields.Text(string="Motif de la dérogation", tracking=True, copy=False)
     matrix_widget = fields.Char(compute="_compute_matrix_widget")
     matrix_pdf_file = fields.Binary(string="PDF matrice fournisseurs", attachment=False, copy=False)
     matrix_pdf_filename = fields.Char(copy=False)
@@ -194,15 +196,16 @@ class PurchaseRequest(models.Model):
             2: (self.buyer_fournisseur_b_name, self.devis_B),
             3: (self.buyer_fournisseur_c_name, self.devis_C),
         }
-        for supplier in suppliers.filtered(lambda item: item.sequence in legacy_values):
-            legacy_name, legacy_quotations = legacy_values[supplier.sequence]
-            values = {}
-            if not supplier.name and legacy_name:
-                values["name"] = legacy_name
-            if not supplier.quotation_ids and legacy_quotations:
-                values["quotation_ids"] = [(6, 0, legacy_quotations.ids)]
-            if values:
-                supplier.write(values)
+        if not self.matrix_dynamic_initialized:
+            for supplier in suppliers.filtered(lambda item: item.sequence in legacy_values):
+                legacy_name, legacy_quotations = legacy_values[supplier.sequence]
+                values = {}
+                if not supplier.name and legacy_name:
+                    values["name"] = legacy_name
+                if not supplier.quotation_ids and legacy_quotations:
+                    values["quotation_ids"] = [(6, 0, legacy_quotations.ids)]
+                if values:
+                    supplier.write(values)
 
         if not self.matrix_dynamic_initialized:
             # Migration unique des anciens emplacements techniques B/C vides.
@@ -252,8 +255,11 @@ class PurchaseRequest(models.Model):
         }
         return {
             "editable": self.state == "devis" and self.initiator_id == self.env.user,
+            "derogation_mode": request.matrix_derogation_mode,
+            "derogation_reason": request.matrix_derogation_reason or "",
             "suppliers": [
-                {"id": supplier.id, "sequence": supplier.sequence, "name": supplier.name or "", "total": supplier.total_score}
+                {"id": supplier.id, "sequence": supplier.sequence, "name": supplier.name or "", "total": supplier.total_score,
+                 "quotations": [{"id": attachment.id, "name": attachment.name} for attachment in supplier.quotation_ids]}
                 for supplier in suppliers
             ],
             "criteria": [
@@ -278,6 +284,149 @@ class PurchaseRequest(models.Model):
             ],
             "suggested_supplier_id": request.matrix_suggested_supplier_id.id,
         }
+
+    def save_supplier_matrix(self, data):
+        self._matrix_check_access(write=True)
+        request = self.sudo()
+        request._ensure_supplier_matrix()
+        submitted = data.get("suppliers") or []
+        if not submitted:
+            raise ValidationError("La matrice doit conserver au moins un fournisseur.")
+        if data.get("derogation_mode") and not (data.get("derogation_reason") or "").strip():
+            raise ValidationError("Veuillez renseigner le motif de la dérogation.")
+        existing = {supplier.id: supplier for supplier in request.matrix_supplier_ids}
+        criterion_ids = set(request.matrix_criterion_ids.ids)
+        seen_ids = set()
+        names = set()
+        for item in submitted:
+            supplier_id = item.get("id")
+            if supplier_id and supplier_id not in existing:
+                raise ValidationError("Fournisseur invalide pour cette demande.")
+            if supplier_id and supplier_id in seen_ids:
+                raise ValidationError("Un fournisseur apparaît plusieurs fois dans la matrice.")
+            if supplier_id:
+                seen_ids.add(supplier_id)
+            name = (item.get("name") or "").strip()
+            if name:
+                if name.casefold() in names:
+                    raise ValidationError("Un même fournisseur ne peut pas apparaître plusieurs fois dans la matrice.")
+                names.add(name.casefold())
+            evaluations = item.get("evaluations") or {}
+            if set(map(int, evaluations)) != criterion_ids:
+                raise ValidationError("La matrice d'évaluation est incomplète.")
+            for values in evaluations.values():
+                if values.get("score_set"):
+                    try:
+                        score = float(values.get("score"))
+                    except (TypeError, ValueError):
+                        raise ValidationError("La note doit être un nombre compris entre 0 et 5.")
+                    if not 0 <= score <= 5:
+                        raise ValidationError("La note doit être comprise entre 0 et 5.")
+            for quotation in item.get("quotations") or []:
+                attachment_id = quotation.get("id")
+                if attachment_id and (not supplier_id or attachment_id not in existing[supplier_id].quotation_ids.ids):
+                    raise ValidationError("Devis invalide pour ce fournisseur.")
+                if not attachment_id and not quotation.get("content"):
+                    raise ValidationError("Le devis est vide ou invalide.")
+
+        request.write({
+            "matrix_derogation_mode": bool(data.get("derogation_mode")),
+            "matrix_derogation_reason": (data.get("derogation_reason") or "").strip(),
+        })
+        Supplier = self.env["purchase.request.matrix.supplier"].sudo()
+        Evaluation = self.env["purchase.request.matrix.evaluation"].sudo()
+        kept_ids = set()
+        for sequence, item in enumerate(submitted, start=1):
+            supplier = existing.get(item.get("id"))
+            if supplier:
+                supplier.write({"name": (item.get("name") or "").strip()})
+            else:
+                supplier = Supplier.create({
+                    "request_id": request.id,
+                    "sequence": max(request.matrix_supplier_ids.mapped("sequence"), default=0) + 1,
+                    "name": (item.get("name") or "").strip(),
+                })
+            kept_ids.add(supplier.id)
+            attachment_ids = []
+            for quotation in item.get("quotations") or []:
+                if quotation.get("id"):
+                    attachment_ids.append(quotation["id"])
+                else:
+                    attachment = self.env["ir.attachment"].sudo().create({
+                        "name": os.path.basename(quotation.get("name") or "Devis"),
+                        "type": "binary",
+                        "datas": quotation["content"],
+                        "res_model": "purchase.request",
+                        "res_id": request.id,
+                    })
+                    attachment_ids.append(attachment.id)
+                    request.write({"devis_attachment_ids": [(4, attachment.id)]})
+            if supplier.quotation_ids:
+                request.write({"devis_attachment_ids": [(4, attachment.id) for attachment in supplier.quotation_ids]})
+            supplier.write({"quotation_ids": [(6, 0, attachment_ids)]})
+            for criterion in request.matrix_criterion_ids:
+                values = item["evaluations"][str(criterion.id)]
+                evaluation = supplier.evaluation_ids.filtered(lambda row: row.criterion_id.id == criterion.id)
+                if not evaluation:
+                    evaluation = Evaluation.create({"supplier_id": supplier.id, "criterion_id": criterion.id})
+                evaluation.write({
+                    "applicable": bool(values.get("applicable")),
+                    "score_set": bool(values.get("score_set")),
+                    "score": float(values.get("score") or 0) if values.get("score_set") else 0,
+                    "comment": values.get("comment") or "",
+                })
+        removed = request.matrix_supplier_ids.filtered(lambda supplier: supplier.id not in kept_ids)
+        for supplier in removed:
+            if supplier.quotation_ids:
+                request.write({"devis_attachment_ids": [(4, attachment.id) for attachment in supplier.quotation_ids]})
+        removed.unlink()
+        for sequence, supplier in enumerate(request.matrix_supplier_ids.sorted("sequence"), start=1):
+            if supplier.sequence != sequence:
+                supplier.sequence = sequence
+        first_three = {supplier.sequence: supplier.name for supplier in request.matrix_supplier_ids if supplier.sequence <= 3}
+        request.write({
+            "buyer_fournisseur_a_name": first_three.get(1, False),
+            "buyer_fournisseur_b_name": first_three.get(2, False),
+            "buyer_fournisseur_c_name": first_three.get(3, False),
+        })
+        return self.get_supplier_matrix()
+
+    def update_supplier_matrix_derogation(self, values):
+        self._matrix_check_access(write=True)
+        allowed = {}
+        if "derogation_mode" in values:
+            allowed["matrix_derogation_mode"] = bool(values["derogation_mode"])
+        if "derogation_reason" in values:
+            allowed["matrix_derogation_reason"] = (values["derogation_reason"] or "").strip()
+        if allowed:
+            self.sudo().write(allowed)
+        return self.get_supplier_matrix()
+
+    def add_supplier_matrix_quotation(self, supplier_id, filename, content):
+        self._matrix_check_access(write=True)
+        supplier = self.sudo().matrix_supplier_ids.filtered(lambda item: item.id == supplier_id)
+        if not supplier:
+            raise ValidationError("Fournisseur invalide pour cette demande.")
+        if not filename or not content:
+            raise ValidationError("Le devis est vide ou invalide.")
+        attachment = self.env["ir.attachment"].sudo().create({
+            "name": os.path.basename(filename),
+            "type": "binary",
+            "datas": content,
+            "res_model": "purchase.request",
+            "res_id": self.id,
+        })
+        supplier.write({"quotation_ids": [(4, attachment.id)]})
+        self.sudo().write({"devis_attachment_ids": [(4, attachment.id)]})
+        return self.get_supplier_matrix()
+
+    def remove_supplier_matrix_quotation(self, supplier_id, attachment_id):
+        self._matrix_check_access(write=True)
+        supplier = self.sudo().matrix_supplier_ids.filtered(lambda item: item.id == supplier_id)
+        if not supplier or attachment_id not in supplier.quotation_ids.ids:
+            raise ValidationError("Devis invalide pour ce fournisseur.")
+        supplier.write({"quotation_ids": [(3, attachment_id)]})
+        return self.get_supplier_matrix()
 
     def update_supplier_matrix_name(self, supplier_id, name):
         self._matrix_check_access(write=True)
@@ -335,6 +484,8 @@ class PurchaseRequest(models.Model):
         )
         if has_data and not confirmed:
             return {"confirmation_required": True, "supplier_name": supplier.name or "ce fournisseur"}
+        if supplier.quotation_ids:
+            self.sudo().write({"devis_attachment_ids": [(4, attachment.id) for attachment in supplier.quotation_ids]})
         supplier.unlink()
         for sequence, remaining_supplier in enumerate(
             self.sudo().matrix_supplier_ids.sorted("sequence"), start=1

@@ -21,7 +21,48 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: 16px;
+    flex-wrap: wrap;
     margin-bottom: 14px;
+}
+
+.o_matrix_derogation {
+    margin-bottom: 14px;
+    padding: 14px 16px;
+    border: 1px solid #e7cf93;
+    border-left: 4px solid #c58b24;
+    border-radius: 10px;
+    background: #fffaf0;
+    color: #533a13;
+}
+
+.o_matrix_derogation_heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+    font-size: 15px;
+}
+
+.o_matrix_derogation_note {
+    margin: 0 0 10px;
+    font-size: 13px;
+}
+
+.o_matrix_derogation_toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.o_matrix_derogation_toggle .form-check-input {
+    margin: 0;
+}
+
+.o_matrix_derogation_reason {
+    max-width: 720px;
+    margin-top: 12px;
 }
 
 .o_matrix_recommendation_area {
@@ -101,6 +142,26 @@
     white-space: nowrap;
 }
 
+.o_matrix_quotations {
+    margin-top: 8px;
+    text-align: left;
+    font-weight: normal;
+}
+
+.o_matrix_quotation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 4px;
+    min-width: 0;
+}
+
+.o_matrix_quotation a {
+    overflow-wrap: anywhere;
+    font-size: 12px;
+}
+
 .o_matrix_table_shell {
     border: 1px solid #d8e0ea;
     border-radius: 12px;
@@ -161,6 +222,7 @@
 .o_matrix_score { min-width: 115px; text-align: center; background: #effaf3 !important; }
 .o_matrix_comment { min-width: 175px; background: #fdf2fb !important; }
 .o_matrix_supplier_name { min-width: 145px; background: #dff4e7 !important; }
+.o_matrix_table thead th.o_matrix_supplier_name { vertical-align: top; }
 .o_matrix_comment_name { min-width: 175px; background: #f5dcf1 !important; }
 .o_matrix_na { background: #eef1f4 !important; }
 
