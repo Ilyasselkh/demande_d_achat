@@ -73,8 +73,8 @@ class PurchaseRequest(models.Model):
     @api.constrains('devis_requirement_level', 'exceptional_validation')
     def _check_exceptional_validation_level(self):
         for rec in self:
-            if rec.exceptional_validation and rec.devis_requirement_level != 'three':
-                raise ValidationError("La dérogation des 3 devis ne peut être cochée que si le montant est à partir de 20 001 MAD.")
+            if rec.exceptional_validation and rec.devis_requirement_level not in ('two', 'three'):
+                raise ValidationError("La dérogation des devis est disponible à partir de 2 001 MAD.")
     
     # modif I
     def _get_step_actor_users(self, new_state):
@@ -236,20 +236,6 @@ class PurchaseRequest(models.Model):
         for record in self:
             if record.state != 'buyer':
                 continue
-            if record.supplier_category == 'other_non_strategic':
-                pairs = [
-                    ("A", record.buyer_fournisseur_a_name, record.devis_A),
-                    ("B", record.buyer_fournisseur_b_name, record.devis_B),
-                    ("C", record.buyer_fournisseur_c_name, record.devis_C),
-                ]
-                valid_pairs = [
-                    pair for pair in pairs
-                    if pair[1] and pair[1].strip() and pair[2]
-                ]
-                if not valid_pairs:
-                    raise ValidationError("Veuillez renseigner au moins un fournisseur avec son devis.")
-                continue
-
             matrix_request = record.sudo()
             matrix_request._ensure_supplier_matrix()
             suppliers = matrix_request.matrix_supplier_ids.sorted('sequence')
@@ -294,8 +280,6 @@ class PurchaseRequest(models.Model):
 
     def _devis_count_for_procedure(self):
         self.ensure_one()
-        if self.supplier_category == 'other_non_strategic':
-            return len(self.devis_attachment_ids)
         attachment_ids = set()
         for supplier in self.matrix_supplier_ids:
             attachment_ids.update(supplier.quotation_ids.ids)
@@ -402,6 +386,9 @@ class PurchaseRequest(models.Model):
             if not record.form_option:
                 raise ValidationError("Veuillez sélectionner le Type de procédure d'achat avant de soumettre.")
 
+            if record.form_option == 'ab1' and record._devis_count_for_procedure() < record._minimum_competition_quotes():
+                raise ValidationError("La mise en concurrence nécessite deux devis, ou au moins un devis avec une dérogation autorisée.")
+
             record._check_ab1_b2_c_selected_before_submit_devis()
             record._check_required_fields_by_state()
             record._validate_supplier_matrix()
@@ -411,17 +398,16 @@ class PurchaseRequest(models.Model):
                 if not record.manager_user_id:
                     raise ValidationError("Aucun manager N+1 n'est défini pour valider la dérogation.")
 
-        # Règle spécifique: à partir de 20 001 MAD
-            if record.devis_requirement_level == 'three':
+        # Deux devis pour la tranche intermédiaire, trois pour la tranche supérieure.
+            if record.devis_requirement_level in ('two', 'three'):
                 devis_count = record._devis_count_for_procedure()
-
-            # Logique:
-            # - si < 3 devis => dérogation obligatoire
-            # - si >= 3 devis => pas besoin de dérogation
-                if devis_count < 3 and not record.exceptional_validation:
+                required_count = 2 if record.devis_requirement_level == 'two' else 3
+                if devis_count < 1:
+                    raise ValidationError("Au moins un devis est obligatoire, même en cas de dérogation.")
+                if devis_count < required_count and not record.exceptional_validation:
                     raise ValidationError(
-                    "À partir de 20 001 MAD, si vous avez moins de 3 devis (1 ou 2), "
-                    "vous devez cocher 'Dérogation des 3 devis' avant de soumettre vers l'étape Achat."
+                    "Cette tranche nécessite %s devis. Cochez 'Dérogation des devis' pour soumettre avec moins de devis."
+                    % required_count
                 )
 
         # Passage à l'état Achat
@@ -466,11 +452,11 @@ class PurchaseRequest(models.Model):
             # Cas normal selon montant
             mode = rec.devis_requirement_level
 
-            if rec.devis_requirement_level == 'three':
+            if rec.devis_requirement_level in ('two', 'three'):
                 devis_count = rec._devis_count_for_procedure()
 
                 if rec.exceptional_validation and devis_count in (1, 2):
-                    mode = 'two'
+                    mode = 'one' if devis_count == 1 else 'two'
 
             rec.buyer_display_mode = mode
 
@@ -482,8 +468,8 @@ class PurchaseRequest(models.Model):
     devis_C = fields.Many2many('ir.attachment','purchase_request_buyer_fournisseur_c_rel' ,string="Devis C", tracking=True)
            #  Checkbox obligatoire pour le 3e cas
     exceptional_validation = fields.Boolean(
-    string="Dérogation des 3 devis",
-    help="Si le montant est supérieur ou égal à 20 001 MAD cochez ce bouton. N.B: il faut au minimum 3 devis.",
+    string="Dérogation des devis",
+    help="À partir de 2 001 MAD : autorise moins de 2 devis pour la tranche intermédiaire ou moins de 3 devis à partir de 20 001 MAD. Au moins un devis reste obligatoire.",
     tracking=True
     )
 
@@ -491,11 +477,11 @@ class PurchaseRequest(models.Model):
     @api.onchange('devis_requirement_level')
     def _onchange_devis_requirement_level_exception(self):
         """
-    - La dérogation ne doit être cochable QUE si montant >= 20 001 MAD (level == 'three')
-    - Si on repasse à one/two, on décoche automatiquement.
+    La dérogation est disponible pour les tranches two et three.
+    Le retour à la tranche one la désactive.
     """
         for rec in self:
-            if rec.devis_requirement_level != 'three':
+            if rec.devis_requirement_level not in ('two', 'three'):
                 rec.exceptional_validation = False
 
     # modif I
@@ -513,10 +499,7 @@ class PurchaseRequest(models.Model):
             record._check_buyer_suppliers_devis()
 
             level = record.devis_requirement_level
-            if record.supplier_category == 'other_non_strategic':
-                devis_count = len(record.devis_A) + len(record.devis_B) + len(record.devis_C)
-            else:
-                devis_count = sum(len(supplier.quotation_ids) for supplier in record.sudo().matrix_supplier_ids)
+            devis_count = sum(len(supplier.quotation_ids) for supplier in record.sudo().matrix_supplier_ids)
 
             # Si la procédure accepte 1 seul devis, on n'affiche plus l'erreur "two devis requis"
             if record.form_option in ('ac', 'b2c'):
@@ -532,11 +515,8 @@ class PurchaseRequest(models.Model):
                 elif level == 'two':
                     if devis_count < 1:
                         raise ValidationError("Au moins un devis est obligatoire pour ce montant.")
-                    # on supprime ce message en le remplaçant par une autorisation via dérogation OU procédure
                     if devis_count == 1 and not record.exceptional_validation:
-                        # soit tu autorises directement
-                        record.exceptional_validation = True
-                        # ou bien tu ne fais rien (pas d'erreur)
+                        raise ValidationError("Deux devis sont requis pour cette tranche, sauf dérogation des devis.")
 
                 elif level == 'three':
                     if devis_count < 3 and not record.exceptional_validation:
@@ -625,9 +605,16 @@ class PurchaseRequest(models.Model):
             'value': {'fournisseur_retenu': False}
             }
 
+    def _minimum_competition_quotes(self):
+        self.ensure_one()
+        return 1 if (
+            self.exceptional_validation and self.devis_requirement_level in ('two', 'three')
+        ) else 2
+
     # modif I
     @api.onchange(
     'form_option',
+    'exceptional_validation', 'devis_requirement_level',
     'devis_attachment_ids',   
     'buyer_fournisseur_a_name', 'devis_A',
     'buyer_fournisseur_b_name', 'devis_B',
@@ -657,11 +644,15 @@ class PurchaseRequest(models.Model):
     # ----------------------------
     #  Règles selon form_option
     # ----------------------------
-        if self.form_option == 'ab1' and devis_valides < 2:
+        if self.form_option == 'ab1' and devis_valides < self._minimum_competition_quotes():
             return {
             'warning': {
                 'title': "Erreur",
-                'message': "Vous devez fournir au moins deux devis pour choisir 'Mise en concurrence effectuée'."
+                'message': (
+                    "Au moins un devis est obligatoire, même avec une dérogation."
+                    if self._minimum_competition_quotes() == 1 else
+                    "Vous devez fournir au moins deux devis pour choisir 'Mise en concurrence effectuée', sauf dérogation des devis à partir de 2 001 MAD."
+                )
             },
             'value': {'form_option': False}
         }

@@ -167,6 +167,84 @@ class TestCapexBudget(TransactionCase):
                     'budget_type': 'capex', 'capex_line_id': line_id,
                 })
 
+    def test_support_form_defaults_follow_budget(self):
+        request, manager = self._workflow_request('capex')
+        self.assertEqual(request.type_depense, 'investissement')
+        with patch.object(type(request), '_notify_step_change', return_value=None):
+            request.action_submit()
+            request.with_user(manager).action_first_approve()
+            request.with_user(self.author).action_capex_approve()
+            request.write({'state': 'buyer', 'type_depense': False})
+            opex = self.env['purchase.request'].create({'budget_type': 'opex'})
+            self.assertEqual(opex.type_depense, 'centre_cout')
+            # A direct write cannot override the automatic expense type.
+            opex.write({'state': 'buyer', 'type_depense': 'investissement'})
+            self.assertEqual(opex.type_depense, 'centre_cout')
+            self.assertEqual(request.type_depense, 'investissement')
+            (request.sudo() | opex).write({'state': 'accompagnement'})
+        self.assertEqual(request.type_depense, 'investissement')
+
+    def test_expense_type_cannot_be_overridden(self):
+        request, _manager = self._workflow_request('capex')
+        request.write({'type_depense': 'centre_cout'})
+        self.assertEqual(request.type_depense, 'investissement')
+        opex = self.env['purchase.request'].create({
+            'budget_type': 'opex', 'type_depense': 'investissement',
+        })
+        self.assertEqual(opex.type_depense, 'centre_cout')
+        (request.sudo() | opex).write({'type_depense': False})
+        self.assertEqual(request.type_depense, 'investissement')
+        self.assertEqual(opex.type_depense, 'centre_cout')
+
+    def test_consumption_and_requester_history(self):
+        request, manager = self._workflow_request('capex')
+        line = request.capex_line_id
+        with patch.object(type(request), '_notify_step_change', return_value=None):
+            request.action_submit()
+            request.with_user(manager).action_first_approve()
+            request.with_user(self.author).action_capex_approve()
+            request.write({'devis_retenu': 30, 'currency_id': line.currency_id.id})
+            self.assertEqual(line.pending_amount, 30)
+            self.assertEqual(line.remaining_amount, 100)
+            self.assertFalse(line.history_ids)
+            request.write({'state': 'approved', 'general_director': manager.id})
+            self.assertEqual(line.approved_amount, 30)
+            self.assertEqual(line.pending_amount, 0)
+            self.assertEqual(line.remaining_amount, 70)
+            entry = line.history_ids
+            self.assertEqual(len(entry), 1)
+            self.assertEqual(entry.requester_id, self.contributor)
+            self.assertEqual(entry.amount, 30)
+            self.assertEqual(entry.balance_before, 100)
+            self.assertEqual(entry.balance_after, 70)
+            self.assertTrue(entry.date)
+            request.write({'state': 'reception'})
+            self.assertEqual(len(line.history_ids), 1)
+            request.action_reset_to_draft()
+            self.assertEqual(line.remaining_amount, 100)
+            self.assertEqual(len(line.history_ids), 2)
+            self.assertEqual(line.history_ids[0].operation, 'reversal')
+            request.action_submit()
+            request.with_user(manager).action_first_approve()
+            request.with_user(self.author).action_capex_approve()
+            request.write({'state': 'approved', 'general_director': manager.id})
+            self.assertEqual(len(line.history_ids), 3)
+            request.write({'state': 'archives'})
+            self.assertEqual(line.remaining_amount, 70)
+            self.assertEqual(len(line.history_ids), 3)
+        with self.assertRaises(AccessError):
+            entry.write({'amount': 999})
+        with self.assertRaises(AccessError):
+            entry.unlink()
+
+    def test_budget_change_updates_support_default(self):
+        request, _manager = self._workflow_request('capex')
+        request.write({'budget_type': 'opex'})
+        self.assertEqual(request.type_depense, 'centre_cout')
+        self.assertFalse(request.capex_line_id)
+        request.write({'budget_type': 'capex', 'capex_line_id': self.budget.line_ids.id})
+        self.assertEqual(request.type_depense, 'investissement')
+
     def test_capex_menu_access_does_not_control_contributions(self):
         group = self.env.ref('demande_d_achat.groupe_capex')
         menu = self.env.ref('demande_d_achat.menu_purchase_request_capex')

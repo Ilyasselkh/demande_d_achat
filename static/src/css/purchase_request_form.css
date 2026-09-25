@@ -153,6 +153,15 @@
 
 .o_form_view.o_purchase_request_full_width .o_input,
 .o_form_view.o_purchase_request_full_width .o_field_widget input:not([type="checkbox"]):not([type="radio"]),
+/* Odoo monetary fields overlay a currency/ghost span on the real input.
+   Keep that overlay transparent so the typed amount remains visible. */
+.o_form_view.o_purchase_request_full_width .o_field_monetary span.o_input,
+.o_form_view.o_ar_modern_form .o_field_monetary span.o_input {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
 .o_form_view.o_purchase_request_full_width .o_field_widget textarea,
 .o_form_view.o_purchase_request_full_width .o_field_widget select,
 .o_form_view.o_ar_modern_form .o_input,

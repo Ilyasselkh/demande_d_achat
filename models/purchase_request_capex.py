@@ -39,8 +39,13 @@ class PurchaseRequestCapex(models.Model):
 
     @api.onchange('budget_type')
     def _onchange_budget_type(self):
+        self.type_depense = self._expense_type_for_budget(self.budget_type)
         if self.budget_type != 'capex':
             self.capex_line_id = False
+
+    @api.model
+    def _expense_type_for_budget(self, budget_type):
+        return 'investissement' if budget_type == 'capex' else 'centre_cout'
 
     def _check_capex_selection(self):
         for rec in self:
@@ -92,6 +97,11 @@ class PurchaseRequestCapex(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        default_budget = self.default_get(['budget_type']).get('budget_type', 'opex')
+        vals_list = [
+            dict(vals, type_depense=self._expense_type_for_budget(vals.get('budget_type', default_budget)))
+            for vals in vals_list
+        ]
         for vals in vals_list:
             if vals.get('budget_type') == 'capex' and vals.get('state', 'draft') != 'draft':
                 raise AccessError("Une demande CAPEX doit être créée en Expression de besoin.")
@@ -139,4 +149,14 @@ class PurchaseRequestCapex(models.Model):
                 vals['date_capex_approved'] = False
         if vals.get('budget_type') == 'opex':
             vals['capex_line_id'] = False
+        if {'budget_type', 'type_depense'} & vals.keys() or vals.get('state') == 'accompagnement':
+            # Enforce the budget mapping, including direct RPC/import writes.
+            # Handle each request separately for mixed CAPEX/OPEX batches.
+            # Reapply on entry so requests created before this change also benefit.
+            for rec in self:
+                rec_vals = dict(vals, type_depense=self._expense_type_for_budget(
+                    vals.get('budget_type', rec.budget_type)
+                ))
+                super(PurchaseRequestCapex, rec).write(rec_vals)
+            return True
         return super().write(vals)

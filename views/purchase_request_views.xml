@@ -80,10 +80,6 @@
                   </field>
                 </group>
 
-                <group string="Devis" colspan="4" class="o_ar_subsection" invisible="supplier_category != 'other_non_strategic' or state not in ['devis','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives','rejected']">
-                  <separator string="↳ Devis" colspan="1"/>
-                  <field name="devis_attachment_ids" widget="many2many_binary" string="Devis" readonly="state != 'devis' or not is_initiator"/>
-                </group>
                 <group string="Montant" colspan="4" class="o_ar_subsection" invisible="state not in ['devis','derogation_manager','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives','rejected']">
                   <separator string="↳ Montant" colspan="1"/>
                   <field name="is_buyer" invisible="1"/>
@@ -91,16 +87,21 @@
 
                   <group col="1">
                     <field name="devis_requirement_level" readonly="state != 'devis' or not is_initiator"/>
-                    <div invisible="devis_requirement_level != 'three'">
-                      <label for="exceptional_validation" string="Dérogation des 3 devis" class="o_form_label"/>
+                    <div invisible="devis_requirement_level not in ['two', 'three']">
+                      <label for="exceptional_validation" string="Dérogation des devis" class="o_form_label"/>
                       <field name="exceptional_validation" nolabel="1" class="oe_inline" readonly="not is_initiator_or_buyer or state != 'devis'"/>
                       <div class="text-muted" style="margin-top:10px;">
-                        Si le montant est supérieur ou égal à 20 001 MAD et que vous avez <b>moins de 3 devis</b>,
-                        cochez ce bouton pour pouvoir soumettre.
+                        <span invisible="devis_requirement_level != 'two'">Entre 2 001 MAD et 20 000 MAD, si vous avez <b>moins de 2 devis</b>, cochez cette case pour soumettre.</span>
+                        <span invisible="devis_requirement_level != 'three'">À partir de 20 001 MAD, si vous avez <b>moins de 3 devis</b>, cochez cette case pour soumettre.</span>
+                        <br/>Au moins un devis reste obligatoire.
                       </div>
                     </div>
                   </group>
                 </group>
+              </group>
+
+              <group string="↳ Matrice de choix fournisseurs" colspan="4" invisible="not supplier_category or state not in ['devis','derogation_manager','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives']">
+                <field name="matrix_widget" widget="supplier_choice_matrix" nolabel="1" readonly="state != 'devis' or not is_initiator"/>
               </group>
 
               <group colspan="4" invisible="state not in ['devis','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives','rejected']">
@@ -146,9 +147,6 @@
                 </group>
               </group>
 
-              <group string="↳ Matrice de choix fournisseurs" colspan="4" invisible="supplier_category == 'other_non_strategic' or state not in ['devis','derogation_manager','buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives']">
-                <field name="matrix_widget" widget="supplier_choice_matrix" nolabel="1" readonly="state != 'devis' or not is_initiator"/>
-              </group>
 
             </group>
             <!-- FIN Section demandeur -->
@@ -157,36 +155,26 @@
             <group string="Acheteur" colspan="4" class="o_ar_section o_ar_section_buyer" invisible="state not in ['buyer','accompagnement','second_manager','finance_validation','general_director','approved','reception','archives']">
               <field name="is_buyer" invisible="1"/>
 
-              <group string="Fournisseurs et devis" colspan="4" invisible="supplier_category == 'other_non_strategic'">
+              <group string="Fournisseurs et devis" colspan="4">
                 <field name="matrix_supplier_ids" readonly="not is_buyer or state != 'buyer'">
-                  <list create="0" delete="0">
+                  <list create="0" delete="0" decoration-success="is_selected_supplier">
                     <field name="sequence" column_invisible="True"/>
-                    <field name="name" readonly="1"/>
+                    <field name="name" readonly="1" width="220px"/>
                     <field name="quotation_ids" widget="many2many_tags"/>
-                    <field name="total_score" readonly="1"/>
+                    <field name="total_score" readonly="1" width="110px"/>
+                    <field name="is_selected_supplier" string="Fournisseur choisi" widget="boolean" readonly="1" width="180px"/>
                   </list>
                   <form string="Fournisseur et devis" create="0" delete="0">
                     <group>
                       <field name="name" readonly="1"/>
                       <field name="quotation_ids" widget="many2many_binary"/>
                       <field name="total_score" readonly="1"/>
+                      <field name="is_selected_supplier" string="Fournisseur choisi" readonly="1"/>
                     </group>
                   </form>
                 </field>
               </group>
 
-              <group string="Fournisseurs et devis" colspan="4" invisible="supplier_category != 'other_non_strategic'">
-                <group string="Fournisseurs" col="4">
-                  <field name="buyer_fournisseur_a_name" readonly="not is_buyer or state != 'buyer'"/>
-                  <field name="buyer_fournisseur_b_name" invisible="buyer_display_mode == 'one'" readonly="not is_buyer or state != 'buyer'"/>
-                  <field name="buyer_fournisseur_c_name" invisible="buyer_display_mode != 'three'" readonly="not is_buyer or state != 'buyer'"/>
-                </group>
-                <group col="2" string="Devis" invisible="not devis_requirement_level">
-                  <field name="devis_A" widget="many2many_binary" readonly="not is_buyer or state != 'buyer'"/>
-                  <field name="devis_B" widget="many2many_binary" invisible="buyer_display_mode == 'one'" readonly="not is_buyer or state != 'buyer'"/>
-                  <field name="devis_C" widget="many2many_binary" invisible="buyer_display_mode != 'three'" readonly="not is_buyer or state != 'buyer'"/>
-                </group>
-              </group>
             </group>
 
             <!-- Section formulaire d'accompagnement -->
@@ -194,10 +182,10 @@
 
               <group col="4">
                 <field name="id_sap" placeholder="Entrer l'ID SAP" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
-                <field name="matrix_selected_supplier_id" placeholder="Choisir le fournisseur" invisible="supplier_category == 'other_non_strategic'" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
-                <field name="fournisseur_retenu" placeholder="Choisir le fournisseur" invisible="supplier_category != 'other_non_strategic'" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
-                <field name="devis_retenu" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
-                <field name="type_depense" placeholder="Choisir le type de dépense" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
+                <field name="matrix_selected_supplier_id" placeholder="Choisir le fournisseur" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="devis_retenu" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="state != 'accompagnement' or not is_initiator_or_buyer"/>
+                <field name="type_depense" readonly="1"/>
               </group>
 
               <group col="4" invisible="type_depense != 'investissement'">

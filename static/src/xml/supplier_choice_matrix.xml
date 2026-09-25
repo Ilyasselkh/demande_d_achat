@@ -44,29 +44,6 @@
                         <i class="fa fa-plus me-1"/> Ajouter un fournisseur
                     </button>
                 </div>
-                <section class="o_matrix_derogation" aria-label="Mode dérogation">
-                    <div class="o_matrix_derogation_heading">
-                        <i class="fa fa-exclamation-circle" aria-hidden="true"/>
-                        <strong>Dérogation</strong>
-                    </div>
-                    <p class="o_matrix_derogation_note">
-                        <strong>N.B :</strong> En cas de dérogation, veuillez cocher le mode dérogation et mentionner le motif.
-                    </p>
-                    <label class="o_matrix_derogation_toggle">
-                        <input type="checkbox" class="form-check-input"
-                            t-att-checked="state.data.derogation_mode"
-                            t-att-disabled="!state.data.editable"
-                            t-on-change="updateDerogationMode"/>
-                        <span>Mode dérogation</span>
-                    </label>
-                    <div t-if="state.data.derogation_mode" class="o_matrix_derogation_reason">
-                        <label class="form-label" for="o_matrix_derogation_reason">Motif de la dérogation <span class="text-danger">*</span></label>
-                        <textarea id="o_matrix_derogation_reason" class="form-control" rows="2"
-                            t-att-value="state.data.derogation_reason"
-                            t-att-disabled="!state.data.editable"
-                            t-on-input="updateDerogationReason"/>
-                    </div>
-                </section>
                 <div class="table-responsive o_matrix_table_shell">
                     <table class="table table-bordered o_matrix_table">
                         <thead>
@@ -164,8 +141,48 @@
                     </table>
                 </div>
                 <small class="text-muted o_matrix_formula">
-                    Total fournisseur = somme (pondération × note). Les critères N/A valent 0.
+                    Total fournisseur = somme (pondération × note). Les critères N/A ne sont pas comptabilisés.
                 </small>
+                <div class="o_matrix_choice_card">
+                    <div class="o_matrix_choice_heading">
+                        <span class="o_matrix_choice_icon"><i class="fa fa-building-o" aria-hidden="true"/></span>
+                        <div>
+                            <span class="o_matrix_choice_eyebrow">DÉCISION D’ACHAT</span>
+                            <label for="o_matrix_selected_supplier" class="form-label">Fournisseur choisi</label>
+                        </div>
+                    </div>
+                    <p class="o_matrix_choice_hint">Sélectionnez le fournisseur retenu parmi ceux évalués dans la matrice.</p>
+                    <select id="o_matrix_selected_supplier" class="form-select"
+                        t-att-disabled="!state.data.editable || state.saving"
+                        t-on-change="updateSelectedSupplier">
+                        <option value="" t-att-selected="!state.data.selected_supplier_id">Sélectionner un fournisseur</option>
+                        <t t-foreach="state.data.suppliers" t-as="supplier" t-key="'choice-' + supplier.id">
+                            <option t-if="supplier.name.trim()" t-att-value="supplier.id"
+                                t-att-selected="state.data.selected_supplier_id === supplier.id"
+                                t-esc="supplier.name"/>
+                        </t>
+                    </select>
+                </div>
+                <section t-if="state.data.derogation_mode" class="o_matrix_derogation" aria-label="Mode dérogation">
+                    <div class="o_matrix_derogation_heading">
+                        <span class="o_matrix_exception_icon"><i class="fa fa-shield" aria-hidden="true"/></span>
+                        <strong>Justification du choix</strong>
+                        <span class="o_matrix_exception_badge"><i class="fa fa-check-circle" aria-hidden="true"/> Dérogation activée</span>
+                    </div>
+                    <p class="o_matrix_derogation_note">
+                        Le fournisseur choisi diffère de la recommandation. Précisez les raisons de votre décision.
+                    </p>
+                    <div t-if="state.data.derogation_mode" class="o_matrix_derogation_reason">
+                        <label class="form-label" for="o_matrix_derogation_reason">Motif de la dérogation <span class="o_matrix_required_badge">Obligatoire</span></label>
+                        <textarea id="o_matrix_derogation_reason" class="form-control" rows="3" required="required"
+                            placeholder="Expliquez votre choix : délai de livraison, disponibilité, contraintes techniques…"
+                            aria-describedby="o_matrix_reason_help"
+                            t-att-value="state.data.derogation_reason"
+                            t-att-disabled="!state.data.editable"
+                            t-on-input="updateDerogationReason"/>
+                        <small id="o_matrix_reason_help" class="o_matrix_choice_hint">Cette justification sera enregistrée avec la matrice.</small>
+                    </div>
+                </section>
                 </t>
                 <t t-set-slot="footer">
                     <button t-if="state.data and state.data.editable" type="button" class="btn btn-success"

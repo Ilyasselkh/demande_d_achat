@@ -15,7 +15,7 @@ from reportlab.platypus import Image as ReportLabImage
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 
-DEFAULT_CRITERIA = [
+STRATEGIC_CRITERIA = [
     (10, "Certifications", "Certification IATF 16949 : 5\nCertification ISO 9001 avec niveau de conformité IATF par audit seconde partie : 3\nCertification ISO 9001 complète par conformité MAQMSR ou équivalent : 2\nCertification ISO 9001 par audit tierce partie : 1\nCertification ISO 9001 par seconde partie : 0", 4),
     (20, "Prix (saving ou perte)", "Saving : 5\nÉquivalent : 2,5\nPerte : 0", 5),
     (30, "Sécurisation approvisionnement (capacités, multi-usines)", "Oui : 5\nNon : 0", 2),
@@ -25,6 +25,17 @@ DEFAULT_CRITERIA = [
     (70, "Qualité (respect des exigences aux plans, délai PPAP)", "OK : 5\nRemarques : 2,5\nRefus : 0", 5),
     (80, "Ecovadis, Scorecard RSE ou localisation", "Meilleure note : 5", 2),
     (90, "Maîtrise du risque", "Oui : 5\nPartiellement : 2,5\nNon : 0", 4),
+    (100, "Fait partie du réseau ARaymond ou connaissance du fournisseur (historique d'achat)", "Oui : 5\nNon : 0\nou NA", 5),
+]
+
+NON_STRATEGIC_CRITERIA = [
+    (10, "Certifications", "Certification IATF 16949 : 5\nCertification ISO 9001 avec niveau de conformité IATF par audit seconde partie : 3\nCertification ISO 9001 complète par conformité MAQMSR ou équivalent : 2\nCertification ISO 9001 par audit tierce partie : 1\nCertification ISO 9001 par seconde partie : 0", 2),
+    (20, "Prix (saving ou perte)", "Saving : 5\nÉquivalent : 2,5\nPerte : 0", 5),
+    (30, "Sécurisation approvisionnement (capacités, multi-usines)", "Oui : 5\nNon : 0", 2),
+    (40, "Connaissance technique de la gamme de produit", "Oui : 5\nPartiellement : 2,5\nNon : 0", 4),
+    (50, "Logistique (délais, incoterms)", "Meilleure proposition logistique : 5", 3),
+    (60, "Documentaires (signatures, remarques)", "Tout signé : 5\nRemarques : 2,5\nRien signé : 0", 4),
+    (80, "Ecovadis, Scorecard RSE ou localisation", "Meilleure note : 5", 2),
     (100, "Fait partie du réseau ARaymond ou connaissance du fournisseur (historique d'achat)", "Oui : 5\nNon : 0\nou NA", 5),
 ]
 
@@ -64,6 +75,11 @@ class PurchaseRequestMatrixSupplier(models.Model):
     )
     evaluation_ids = fields.One2many("purchase.request.matrix.evaluation", "supplier_id")
     total_score = fields.Float(compute="_compute_total_score", store=True, digits=(16, 2))
+    is_selected_supplier = fields.Boolean(
+        string="Fournisseur choisi",
+        compute="_compute_is_selected_supplier",
+        compute_sudo=True,
+    )
 
     _request_sequence_unique = models.Constraint(
         "UNIQUE(request_id, sequence)",
@@ -77,6 +93,13 @@ class PurchaseRequestMatrixSupplier(models.Model):
                 evaluation.weighted_score
                 for evaluation in supplier.evaluation_ids
                 if evaluation.applicable
+            )
+
+    @api.depends("request_id.matrix_selected_supplier_id")
+    def _compute_is_selected_supplier(self):
+        for supplier in self:
+            supplier.is_selected_supplier = (
+                supplier.request_id.matrix_selected_supplier_id == supplier
             )
 
 
@@ -125,6 +148,10 @@ class PurchaseRequest(models.Model):
     matrix_pdf_file = fields.Binary(string="PDF matrice fournisseurs", attachment=False, copy=False)
     matrix_pdf_filename = fields.Char(copy=False)
     matrix_dynamic_initialized = fields.Boolean(default=False, copy=False)
+    matrix_criteria_profile = fields.Selection(
+        [("strategic", "Stratégique"), ("non_strategic", "Non stratégique")],
+        copy=False,
+    )
     matrix_criterion_ids = fields.One2many(
         "purchase.request.matrix.criterion", "request_id", string="Critères fournisseurs"
     )
@@ -169,26 +196,48 @@ class PurchaseRequest(models.Model):
         Supplier = self.env["purchase.request.matrix.supplier"].sudo()
         Evaluation = self.env["purchase.request.matrix.evaluation"].sudo()
 
-        if not self.matrix_criterion_ids:
-            Criterion.create([
-                {
+        profile = "non_strategic" if self.supplier_category == "other_non_strategic" else "strategic"
+        criteria_definition = NON_STRATEGIC_CRITERIA if profile == "non_strategic" else STRATEGIC_CRITERIA
+        expected_names = {name for _sequence, name, _guide, _weight in criteria_definition}
+        current_by_name = {criterion.name: criterion for criterion in self.matrix_criterion_ids}
+        obsolete = self.matrix_criterion_ids.filtered(lambda criterion: criterion.name not in expected_names)
+        if obsolete:
+            obsolete.unlink()
+        criteria_values = []
+        for sequence, name, guide, weight in criteria_definition:
+            criterion = current_by_name.get(name)
+            if criterion and criterion.exists():
+                criterion.write({
+                    "sequence": sequence,
+                    "rating_guide": guide,
+                    "weight": weight,
+                })
+            else:
+                criteria_values.append({
                     "request_id": self.id,
                     "sequence": sequence,
                     "name": name,
                     "rating_guide": guide,
                     "weight": weight,
-                }
-                for sequence, name, guide, weight in DEFAULT_CRITERIA
-            ])
+                })
+        if criteria_values:
+            Criterion.create(criteria_values)
+        if obsolete or criteria_values:
+            self.invalidate_recordset(["matrix_criterion_ids"])
+        if self.matrix_criteria_profile != profile:
+            self.sudo().matrix_criteria_profile = profile
 
         suppliers = self.matrix_supplier_ids.sorted("sequence")
         if not suppliers:
             first_name = self.buyer_fournisseur_a_name or ""
+            first_quotation_ids = self.devis_A.ids
+            if profile == "non_strategic":
+                first_quotation_ids = list(set(first_quotation_ids + self.devis_attachment_ids.ids))
             suppliers = Supplier.create({
                 "request_id": self.id,
                 "sequence": 1,
                 "name": first_name,
-                "quotation_ids": [(6, 0, self.devis_A.ids)],
+                "quotation_ids": [(6, 0, first_quotation_ids)],
             })
 
         legacy_values = {
@@ -206,6 +255,11 @@ class PurchaseRequest(models.Model):
                     values["quotation_ids"] = [(6, 0, legacy_quotations.ids)]
                 if values:
                     supplier.write(values)
+            if profile == "non_strategic" and suppliers:
+                first_supplier = suppliers[0]
+                legacy_attachment_ids = set(first_supplier.quotation_ids.ids + self.devis_attachment_ids.ids)
+                if legacy_attachment_ids != set(first_supplier.quotation_ids.ids):
+                    first_supplier.write({"quotation_ids": [(6, 0, list(legacy_attachment_ids))]})
 
         if not self.matrix_dynamic_initialized:
             # Migration unique des anciens emplacements techniques B/C vides.
@@ -283,6 +337,7 @@ class PurchaseRequest(models.Model):
                 for criterion in request.matrix_criterion_ids.sorted("sequence")
             ],
             "suggested_supplier_id": request.matrix_suggested_supplier_id.id,
+            "selected_supplier_id": request.matrix_selected_supplier_id.id,
         }
 
     def save_supplier_matrix(self, data):
@@ -292,8 +347,11 @@ class PurchaseRequest(models.Model):
         submitted = data.get("suppliers") or []
         if not submitted:
             raise ValidationError("La matrice doit conserver au moins un fournisseur.")
-        if data.get("derogation_mode") and not (data.get("derogation_reason") or "").strip():
-            raise ValidationError("Veuillez renseigner le motif de la dérogation.")
+        selected_index = data.get("selected_supplier_index", -1)
+        if type(selected_index) is not int or not -1 <= selected_index < len(submitted):
+            raise ValidationError("Fournisseur choisi invalide.")
+        if selected_index >= 0 and not (submitted[selected_index].get("name") or "").strip():
+            raise ValidationError("Renseignez le nom du fournisseur choisi.")
         existing = {supplier.id: supplier for supplier in request.matrix_supplier_ids}
         criterion_ids = set(request.matrix_criterion_ids.ids)
         seen_ids = set()
@@ -329,13 +387,10 @@ class PurchaseRequest(models.Model):
                 if not attachment_id and not quotation.get("content"):
                     raise ValidationError("Le devis est vide ou invalide.")
 
-        request.write({
-            "matrix_derogation_mode": bool(data.get("derogation_mode")),
-            "matrix_derogation_reason": (data.get("derogation_reason") or "").strip(),
-        })
         Supplier = self.env["purchase.request.matrix.supplier"].sudo()
         Evaluation = self.env["purchase.request.matrix.evaluation"].sudo()
         kept_ids = set()
+        selected_id = False
         for sequence, item in enumerate(submitted, start=1):
             supplier = existing.get(item.get("id"))
             if supplier:
@@ -347,6 +402,8 @@ class PurchaseRequest(models.Model):
                     "name": (item.get("name") or "").strip(),
                 })
             kept_ids.add(supplier.id)
+            if sequence - 1 == selected_index:
+                selected_id = supplier.id
             attachment_ids = []
             for quotation in item.get("quotations") or []:
                 if quotation.get("id"):
@@ -375,6 +432,8 @@ class PurchaseRequest(models.Model):
                     "score": float(values.get("score") or 0) if values.get("score_set") else 0,
                     "comment": values.get("comment") or "",
                 })
+        if "selected_supplier_index" in data:
+            request.write({"matrix_selected_supplier_id": selected_id})
         removed = request.matrix_supplier_ids.filtered(lambda supplier: supplier.id not in kept_ids)
         for supplier in removed:
             if supplier.quotation_ids:
@@ -384,7 +443,16 @@ class PurchaseRequest(models.Model):
             if supplier.sequence != sequence:
                 supplier.sequence = sequence
         first_three = {supplier.sequence: supplier.name for supplier in request.matrix_supplier_ids if supplier.sequence <= 3}
+        derogation = bool(
+            request.matrix_selected_supplier_id and request.matrix_suggested_supplier_id
+            and request.matrix_selected_supplier_id != request.matrix_suggested_supplier_id
+        )
+        reason = (data.get("derogation_reason") or "").strip()
+        if derogation and not reason:
+            raise ValidationError("Le fournisseur choisi diffère du fournisseur recommandé : le motif de la dérogation est obligatoire.")
         request.write({
+            "matrix_derogation_mode": derogation,
+            "matrix_derogation_reason": reason if derogation else False,
             "buyer_fournisseur_a_name": first_three.get(1, False),
             "buyer_fournisseur_b_name": first_three.get(2, False),
             "buyer_fournisseur_c_name": first_three.get(3, False),
@@ -673,8 +741,6 @@ class PurchaseRequest(models.Model):
 
     def _validate_supplier_matrix(self):
         for request in self:
-            if request.supplier_category == "other_non_strategic":
-                continue
             matrix_request = request.sudo()
             matrix_request._ensure_supplier_matrix()
             suppliers = matrix_request.matrix_supplier_ids.sorted("sequence")

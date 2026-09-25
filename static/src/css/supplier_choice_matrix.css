@@ -285,3 +285,145 @@
     .o_matrix_suggestion { width: 100%; }
     .o_matrix_add_supplier { align-self: flex-end; }
 }
+
+/* Supplier decision and exception, inside the matrix dialog only. */
+.o_supplier_matrix_dialog .o_matrix_choice_card {
+    margin: 22px 0 14px;
+    padding: 22px 24px;
+    border: 1px solid #dce6ed;
+    border-radius: 14px;
+    background: linear-gradient(120deg, #f0f7fa, #ffffff 70%);
+    box-shadow: 0 4px 16px rgba(24, 50, 71, .04);
+}
+.o_supplier_matrix_dialog .o_matrix_choice_heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.o_supplier_matrix_dialog .o_matrix_choice_icon,
+.o_supplier_matrix_dialog .o_matrix_exception_icon {
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 11px;
+    background: #dceef4;
+    color: #176b87;
+    font-size: 18px;
+}
+.o_supplier_matrix_dialog .o_matrix_choice_eyebrow {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: #547585;
+    margin-bottom: 3px;
+}
+.o_supplier_matrix_dialog .o_matrix_choice_heading .form-label {
+    margin: 0;
+    color: #183247;
+    font-size: 17px;
+    font-weight: 700;
+}
+.o_supplier_matrix_dialog .o_matrix_choice_hint {
+    display: block;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 8px 0 12px;
+}
+.o_supplier_matrix_dialog .o_matrix_choice_card .form-select {
+    min-height: 46px;
+    border: 1px solid #bfd2df;
+    border-radius: 9px;
+    color: #183247;
+    background-color: #fff;
+    font-weight: 600;
+    padding-left: 14px;
+}
+.o_supplier_matrix_dialog .o_matrix_derogation {
+    padding: 22px 24px;
+    border: 1px solid #ead9b8;
+    border-left: 4px solid #c58b24;
+    border-radius: 14px;
+    background: #fffcf6;
+}
+.o_supplier_matrix_dialog .o_matrix_derogation_heading {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+    color: #654513;
+    font-size: 16px;
+}
+.o_supplier_matrix_dialog .o_matrix_exception_icon {
+    background: #fbefd6;
+    color: #966516;
+    width: 34px;
+    height: 34px;
+}
+.o_supplier_matrix_dialog .o_matrix_exception_badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    padding: 6px 10px;
+    border: 1px solid #ead4a7;
+    border-radius: 20px;
+    background: #fbefd6;
+    color: #80550f;
+    font-size: 11px;
+    font-weight: 600;
+}
+.o_supplier_matrix_dialog .o_matrix_derogation_note {
+    color: #7a684c;
+    line-height: 1.6;
+}
+.o_supplier_matrix_dialog .o_matrix_derogation_reason {
+    max-width: none;
+    margin-top: 18px;
+}
+.o_supplier_matrix_dialog .o_matrix_derogation_reason .form-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: #493d2b;
+}
+.o_supplier_matrix_dialog .o_matrix_required_badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: #9b5817;
+    background: #fff0dc;
+    padding: 3px 7px;
+    border-radius: 5px;
+}
+.o_supplier_matrix_dialog .o_matrix_derogation_reason textarea {
+    width: 100%;
+    min-height: 105px;
+    padding: 12px 14px;
+    border: 1px solid #dbcdb5;
+    border-radius: 9px;
+    background: #fff;
+    color: #263b4a;
+    line-height: 1.6;
+    resize: vertical;
+}
+.o_supplier_matrix_dialog .o_matrix_choice_card .form-select:focus,
+.o_supplier_matrix_dialog .o_matrix_derogation_reason textarea:focus {
+    border-color: #39859e;
+    box-shadow: 0 0 0 3px rgba(23, 107, 135, .12);
+    outline: none;
+}
+.o_supplier_matrix_dialog .o_matrix_choice_card .form-select:disabled,
+.o_supplier_matrix_dialog .o_matrix_derogation_reason textarea:disabled {
+    background-color: #f3f5f7;
+    color: #526170;
+    opacity: 1;
+}
+@media (max-width: 575px) {
+    .o_supplier_matrix_dialog .o_matrix_choice_card,
+    .o_supplier_matrix_dialog .o_matrix_derogation { padding: 16px; }
+    .o_supplier_matrix_dialog .o_matrix_exception_badge { margin-left: 0; }
+}

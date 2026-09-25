@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+  <record id="rule_capex_history_company" model="ir.rule">
+    <field name="name">Historique CAPEX : sociétés autorisées</field>
+    <field name="model_id" ref="model_capex_consumption_history"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
   <record id="rule_purchase_request_capex_owner" model="ir.rule">
     <field name="name">DA : consultation par le responsable CAPEX</field>
     <field name="model_id" ref="model_purchase_request"/>

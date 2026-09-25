@@ -1,3 +1,44 @@
+.o_capex_details .o_capex_details_heading { margin: 8px 0 20px; }
+.o_capex_details .o_capex_details_heading h2 { margin-top: 8px; color: #183247; }
+.o_capex_details .o_capex_details_cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+.o_capex_details .o_capex_detail_card {
+    padding: 18px;
+    border: 1px solid #dfe7ee;
+    border-radius: 12px;
+    background: #f5f9fc;
+    min-width: 0;
+}
+.o_capex_details .o_capex_detail_card > span {
+    display: block;
+    color: #63758a;
+    margin-bottom: 10px;
+}
+.o_capex_details .o_capex_detail_card .o_field_widget {
+    font-size: 22px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+.o_capex_details .o_capex_pending_note {
+    margin: 16px 0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: #fff7e6;
+    color: #8a5300;
+}
+.o_capex_details .o_capex_pending_note .o_field_widget {
+    width: auto;
+    margin: 0;
+    font-weight: 700;
+}
+@media (max-width: 767px) {
+    .o_capex_details .o_capex_details_cards { grid-template-columns: 1fr; }
+}
+
 /* Scoped to CAPEX: preserve the layout of other business forms. */
 .o_form_view.o_capex_full_width {
     --capex-ink: #183247;
@@ -82,8 +123,15 @@
     margin-bottom: 0;
 }
 
+.o_capex_full_width .o_capex_kpis {
+    display: grid;
+    flex: 0 0 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    min-width: 0;
+}
+
 .o_capex_full_width .o_capex_budget_card {
-    flex: 0 1 360px;
     min-width: 0;
     padding: 22px 26px;
     border-radius: 12px;
@@ -93,6 +141,18 @@
     flex-direction: column;
     justify-content: center;
     gap: 10px;
+}
+
+.o_capex_full_width .o_capex_remaining_card {
+    background: linear-gradient(120deg, #195643, #278667);
+}
+
+.o_capex_full_width .o_capex_approved_card {
+    background: linear-gradient(120deg, #503477, #7952a8);
+}
+
+.o_capex_full_width .o_capex_pending_card {
+    background: linear-gradient(120deg, #88400e, #ae6418);
 }
 
 .o_capex_full_width .o_capex_budget_card .o_capex_eyebrow,
@@ -170,6 +230,22 @@
     background-color: #edf6f8;
 }
 
+.o_capex_full_width .o_capex_table .o_list_table th[data-name="approved_amount"],
+.o_capex_full_width .o_capex_table .o_list_table td[name="approved_amount"],
+.o_capex_full_width .o_capex_table .o_list_table .o_data_row:nth-child(n) > td[name="approved_amount"] {
+    color: #196344;
+    background-color: #e7f5ed;
+    font-weight: 700;
+}
+
+.o_capex_full_width .o_capex_table .o_list_table th[data-name="pending_amount"],
+.o_capex_full_width .o_capex_table .o_list_table td[name="pending_amount"],
+.o_capex_full_width .o_capex_table .o_list_table .o_data_row:nth-child(n) > td[name="pending_amount"] {
+    color: #99500d;
+    background-color: #fff1df;
+    font-weight: 700;
+}
+
 .o_capex_full_width .o_capex_table .o_field_x2many_list_row_add a {
     color: var(--capex-accent);
     font-weight: 600;
@@ -196,6 +272,16 @@
     color: var(--capex-muted);
 }
 
+.o_capex_full_width .o_capex_month > small {
+    display: block;
+    margin: 7px 0 2px;
+    color: var(--capex-muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
 .o_capex_full_width .o_capex_month .o_field_widget {
     margin: 0;
     font-size: 17px;
@@ -205,7 +291,15 @@
     overflow-wrap: anywhere;
 }
 
+.o_capex_full_width .o_capex_month .o_capex_month_remaining {
+    color: #21765c;
+    font-size: 19px;
+}
+
 @media (max-width: 1199px) {
+    .o_capex_full_width .o_capex_kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
     .o_capex_full_width .o_capex_months {
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
@@ -218,8 +312,8 @@
         margin-left: 8px;
         margin-right: 8px;
     }
-    .o_capex_full_width .o_capex_budget_card {
-        flex-basis: 100%;
+    .o_capex_full_width .o_capex_kpis {
+        grid-template-columns: minmax(0, 1fr);
     }
     .o_capex_full_width .o_capex_months {
         grid-template-columns: repeat(2, minmax(0, 1fr));

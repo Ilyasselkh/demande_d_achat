@@ -46,6 +46,7 @@ export class SupplierChoiceMatrixDialog extends Component {
         this.state.data = await this.orm.call(
             "purchase.request", "get_supplier_matrix", [[this.props.requestId]]
         );
+        this.syncDerogation();
         this.state.loading = false;
         this.state.dirty = false;
     }
@@ -56,8 +57,16 @@ export class SupplierChoiceMatrixDialog extends Component {
         this.markDirty();
     }
 
-    updateDerogationMode(event) {
-        this.state.data.derogation_mode = event.target.checked;
+    syncDerogation() {
+        const data = this.state.data;
+        data.derogation_mode = Boolean(data.selected_supplier_id &&
+            data.suggested_supplier_id &&
+            data.selected_supplier_id !== data.suggested_supplier_id);
+    }
+
+    updateSelectedSupplier(event) {
+        this.state.data.selected_supplier_id = Number(event.target.value) || false;
+        this.syncDerogation();
         this.markDirty();
     }
 
@@ -130,6 +139,9 @@ export class SupplierChoiceMatrixDialog extends Component {
             return;
         }
         const remove = () => {
+            if (this.state.data.selected_supplier_id === supplier.id) {
+                this.state.data.selected_supplier_id = false;
+            }
             this.state.data.suppliers = this.state.data.suppliers.filter((item) => item !== supplier);
             this.state.data.suppliers.forEach((item, index) => item.sequence = index + 1);
             this.recalculate();
@@ -183,6 +195,7 @@ export class SupplierChoiceMatrixDialog extends Component {
         this.state.data.suggested_supplier_id = named.length
             ? named.reduce((best, supplier) => supplier.total > best.total ? supplier : best).id
             : null;
+        this.syncDerogation();
     }
 
     async saveMatrix() {
@@ -190,7 +203,15 @@ export class SupplierChoiceMatrixDialog extends Component {
             return;
         }
         const data = this.state.data;
+        this.syncDerogation();
+        if (data.derogation_mode && !(data.derogation_reason || "").trim()) {
+            this.notification.add("Veuillez renseigner le motif de la dérogation.", { type: "warning" });
+            return;
+        }
         const payload = {
+            selected_supplier_index: data.suppliers.findIndex(
+                (supplier) => supplier.id === data.selected_supplier_id
+            ),
             derogation_mode: data.derogation_mode,
             derogation_reason: data.derogation_reason,
             suppliers: data.suppliers.map((supplier) => ({
